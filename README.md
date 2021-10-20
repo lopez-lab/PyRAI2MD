@@ -42,6 +42,13 @@
     Pascal Friederich          - ML directoriship>
 
 </pre>
+## Features
+ - Machine learning nonadibatic molecular dyanmics (ML-NAMD).
+ - Neural network training and grid search.
+ - Active learning with ML-NAMD trajectories.
+ - Support BAGEL, Molcas for QM, and Molcas/Tinker for QM/MM calculations.
+ - Support nonadibatic coupling and spin-orbit coupling
+ 
 ## Prerequisite
  - **Python >=3.7** PyRAI2MD is written and tested in Python 3.7.4. Older version of Python is not tested and might not be working properly.
  - **TensorFlow >=2.2** TensorFlow/Keras API is required to load the trained NN models and predict energy and force.
