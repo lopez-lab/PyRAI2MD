@@ -1,0 +1,41 @@
+&CONTROL
+title         egs
+ml_ncpu       2
+jobtype       search
+qm            nn
+
+&NN
+train_data  egs.json
+silent      1
+train_mode  training
+nn_eg_type  1
+nn_soc_type 1
+
+&SEARCH
+depth   1 2
+nn_size 60 80
+reg_l2  1e-9
+use_hpc 0
+
+&EG
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5  10
+
+&SOC
+activ          leaky_softplus
+activ_alpha   0.03
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5 10

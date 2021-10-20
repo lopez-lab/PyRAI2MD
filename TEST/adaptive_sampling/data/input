@@ -1,0 +1,105 @@
+&CONTROL
+title         atod
+ml_ncpu       2
+qc_ncpu       2
+jobtype       adaptive
+qm            nn
+abinit        molcas
+maxiter       2
+maxenergy     0.01
+minenergy     0.01
+maxgrad       0.01
+mingrad       0.01
+maxsoc        1
+minsoc        1
+
+&Molcas
+molcas        /work/lopez/Molcas
+
+&Molecule
+ci       2 2
+spin     0 1
+coupling 1 3, 1 4, 2 3, 2 4
+
+&MD
+ninitcond 2
+method wigner
+format molden
+step 4
+size 20.67
+sfhp gsh
+root 2
+
+&NN
+train_data  atod.json
+silent      1
+train_mode  training
+nn_eg_type  2
+nn_soc_type 2
+
+&EG
+depth          4
+nn_size        500
+batch_size     64
+reg_l1         1e-9
+reg_l2         1e-9
+activ          leaky_softplus
+activ_alpha    0.03
+loss_weights   5 1
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            1000
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  3  2
+
+&EG2
+depth          5
+nn_size        500
+batch_size     128
+reg_l1         1e-7
+reg_l2         1e-7
+activ          leaky_softplus
+activ_alpha    0.03
+loss_weights   5 1
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            1000
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  3 2
+
+&SOC
+depth          6
+nn_size        300
+batch_size     128
+reg_l1         1e-8
+reg_l2         1e-8
+activ          leaky_softplus
+activ_alpha    0.03
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            1000
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  3 2
+
+&SOC2
+depth          6
+nn_size        600
+batch_size     128
+reg_l1         1e-7
+reg_l2         1e-7
+activ          leaky_softplus
+activ_alpha    0.03
+use_reg_activ  l2
+use_reg_weight l2
+val_split      0.1
+epo            1000
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  3 2
+

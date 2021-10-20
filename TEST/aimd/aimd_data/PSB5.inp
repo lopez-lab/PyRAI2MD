@@ -1,0 +1,30 @@
+>> EXPORT MOLCAS_MOLDEN=ON
+> COPY $MOLCAS_SUBMIT_DIR/$Project.xyz $WorkDir/$Project.xyz
+> COPY $MOLCAS_SUBMIT_DIR/$Project.key $WorkDir/$Project.key
+
+&GATEWAY
+ Tinker
+ basis=3-21G
+ group=C1
+ RICD
+ AMFI
+
+&SEWARD
+ doanalytic
+
+&Espf
+ External=Tinker
+ lamorok
+
+&RASSCF
+ fileorb=$MOLCAS_PROJECT.StrOrb
+ nactel=2 0 0
+ ras2=2
+ inactive=51
+ ciroot=2 2 1
+ rlxroot=1
+
+&ALASKA
+ ROOT=1
+&ALASKA
+ ROOT=2

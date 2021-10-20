@@ -1,0 +1,81 @@
+&CONTROL
+title         egs
+ml_ncpu       4
+jobtype       predict
+qm            nn
+
+&NN
+train_data  egs.json
+pred_data   egs.json
+silent      0
+train_mode  training
+nn_eg_type  2
+nn_soc_type 2
+
+&EG
+depth          1
+nn_size        200
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-9
+reg_l2         1e-9
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5  10
+
+&EG2
+depth          2
+nn_size        100
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-8
+reg_l2         1e-8
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5 5 10
+
+&SOC
+depth          1
+nn_size        200
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-8
+reg_l2         1e-8
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5 10
+
+&SOC2
+depth          1
+nn_size        200
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-8
+reg_l2         1e-8
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5 10

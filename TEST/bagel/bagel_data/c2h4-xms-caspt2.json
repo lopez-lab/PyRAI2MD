@@ -1,0 +1,45 @@
+{ "bagel" : [
+{
+  "title" : "molecule",
+  "basis" : "/Bagel/share/cc-pvdz.json",
+  "df_basis" : "/Bagel/share/cc-pvdz-jkfit.json",
+  "geometry" : [
+  ]
+},
+{
+ "title": "load_ref",
+ "file" : "c2h4"
+},
+{
+ "title" : "forces",
+  "grads" : [
+{ "title" : "force", "target" : 0},
+{ "title" : "force", "target" : 1},
+{ "title" : "force", "target" : 2},
+{ "title" : "nacme", "target" : 0, "target2" : 1, "nacmtype" : "interstate" },
+{ "title" : "nacme", "target" : 1, "target2" : 2, "nacmtype" : "interstate" }
+],
+ "export" : true,
+ "method":[
+{
+ "title": "caspt2",
+ "smith":{
+   "method" : "caspt2",
+   "ms"     : true,
+   "xms"    : true,
+   "sssr"   : true,
+   "shift"  : 0.5,
+   "thresh" : 1.0e-8,
+   "maxiter": 50,
+   "davidson_subspace" : 3
+ },
+ "natocc"  : true,
+ "nstate"  : 3,
+ "nact"    : 2,
+ "nclosed" : 7,
+ "maxiter" : 50,
+ "active"  : [8, 9]
+}
+]}
+]}
+

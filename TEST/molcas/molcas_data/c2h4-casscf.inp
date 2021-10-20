@@ -1,0 +1,26 @@
+&GATEWAY
+ coord=c2h4.xyz
+ basis
+ ano-rcc-mb
+ Group=c1
+ RICD
+ AMFI
+ Angmom
+ 0 0 0
+
+&SEWARD
+rela
+R02O
+relint
+expert
+doanalytic
+
+&RASSCF
+ Spin=1
+ Nactel=2 0 0
+ Inactive=7
+ Ras1=0
+ Ras2=2
+ Ras3=0
+ ITERATIONS=200,100
+ CIRoot=3 3 1
