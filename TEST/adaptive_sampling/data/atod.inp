@@ -1,0 +1,71 @@
+&GATEWAY
+ coord=$MOLCAS_PROJECT.xyz
+ basis
+ 3-21g
+ Group=c1
+ RICD
+ AMFI
+angmom
+ 0 0 0
+
+&SEWARD
+rela
+R02O
+relint
+expert
+doanalytic
+
+&RASSCF
+ fileorb=$MOLCAS_PROJECT.StrOrb
+ Spin=1
+ Nactel=6 0 0
+ Inactive=32
+ Ras1=0
+ Ras2=5
+ Ras3=0
+ ITERATIONS=200,100
+ CIRoot=2 2 1
+ Rlxroot=1
+
+&ALASKA
+ROOT=1
+&ALASKA
+ROOT=2
+
+&CASPT2
+xmultistate
+all
+shift
+0.35
+
+>>COPY   $WorkDir/$Project.JobMix   $WorkDir/JOB001
+
+&RASSCF
+ fileorb=$MOLCAS_PROJECT.StrOrb
+ Spin=3
+ Nactel=6 0 0
+ Inactive=32
+ Ras1=0
+ Ras2=5
+ Ras3=0
+ ITERATIONS=200,100
+ CIRoot=2 2 1
+ Rlxroot=1
+
+&ALASKA
+ROOT=1
+&ALASKA
+ROOT=2
+
+&CASPT2
+xmultistate
+all
+shift
+0.35
+
+>>COPY   $WorkDir/$Project.JobMix   $WorkDir/JOB002
+&RASSI
+Nrof JobIph=2 2 2;1 2;1 2
+SpinOrbit
+EJob
+SOCOupling=0

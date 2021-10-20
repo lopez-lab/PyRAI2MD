@@ -1,0 +1,142 @@
+Input argpars: {'index': '0', 'filepath': '/scratch/lijingbai2009/test/pmd2/neural_network/NN-egs/energy_gradient', 'gpus': '-1', 'mode': 'training'}
+Warning: No devices found
+Warning: Can not set GPU
+Logic Devices: []
+Training Model:  /scratch/lijingbai2009/test/pmd2/neural_network/NN-egs/energy_gradient
+Network instance:  0
+Found x-shape of (200, 18, 3)
+Found energy-shape of (200, 4)
+Found gradient-shape of (200, 4, 18, 3)
+Info: Train-Test split at Train: 180 Test 20 Total 200
+Info: Making new initialized weights.
+Info: Total-Data gradient std [200   4  18   3] : [2.08043029 2.74656176 2.21888553 2.61475213]
+Info: Total-Data energy std [200   4] : [1.32351831 1.40113311 1.23310865 1.3789051 ]
+Info: Using energy-std (1, 4) : [1.32351831 1.40113311 1.23310865 1.3789051 ]
+Info: Using energy-mean (1, 4) : [-11440.47807814 -11437.23418463 -11438.64151104 -11437.35614217]
+Info: Using gradient-std (1, 4, 1, 1) : [1.32351831 1.40113311 1.23310865 1.3789051 ]
+Info: Using gradient-mean (1, 4, 1, 1) : [0. 0. 0. 0.]
+Info: Using x-scale (1, 1, 1) : [[[1.]]]
+Info: Using x-offset (1, 1, 1) : [[[0.]]]
+Info: Using feature-scale (1, 153) : [[0.02204962 0.01878427 0.01000707 0.02912501 0.02093642 0.01569938
+  0.01088542 0.0216098  0.01824092 0.01307993 0.01500799 0.01194795
+  0.02689321 0.03959437 0.02191746 0.01265658 0.02088429 0.0187419
+  0.01543123 0.07104871 0.02250657 0.06737021 0.01912733 0.02268852
+  0.0132377  0.01072042 0.00859639 0.01135176 0.01873708 0.04950666
+  0.011743   0.01576618 0.01653332 0.0118452  0.02172766 0.02845201
+  0.02464076 0.01195144 0.07652799 0.00919033 0.01960289 0.01552248
+  0.02691402 0.02448062 0.01365418 0.01133699 0.01539069 0.0067568
+  0.06111941 0.00811214 0.021456   0.00795737 0.00883243 0.02114511
+  0.00575228 0.00815724 0.00872262 0.01400999 0.02074626 0.0174544
+  0.06152356 0.01787747 0.00582302 0.00669099 0.01242591 0.02127277
+  0.02558225 0.02722405 0.01268615 0.10100663 0.01554155 0.04102452
+  0.0088447  0.02095464 0.01236728 0.01633803 0.04510409 0.02225004
+  0.01931827 0.01301338 0.00757292 0.04610104 0.0082151  0.0216015
+  0.00617487 0.01797102 0.00833478 0.00907696 0.03470574 0.01437193
+  0.05694735 0.01449748 0.0147923  0.02270001 0.04048746 0.02700706
+  0.09948077 0.01411944 0.01444861 0.00785767 0.02256068 0.02078978
+  0.05005397 0.04065421 0.01771194 0.00442581 0.00445405 0.00780852
+  0.01410994 0.00784838 0.03811176 0.00755171 0.00776738 0.00346527
+  0.01623758 0.01007078 0.03195995 0.00849186 0.01148619 0.01910151
+  0.00383841 0.00424906 0.0087543  0.00639093 0.00776578 0.01758186
+  0.00795983 0.00707021 0.00356997 0.02114787 0.00654303 0.01866341
+  0.00646115 0.00648147 0.01174604 0.03411974 0.00655058 0.00535091
+  0.00665111 0.01614177 0.00698117 0.03249453 0.00677912 0.00728577
+  0.00395384 0.00931511 0.01395646 0.03159937 0.01317199 0.02055521
+  0.01788736 0.06350259 0.03262123]]
+Info: Using feature-offset (1, 153) : [[0.6388973  0.62360567 0.44830287 0.41758397 0.65735227 0.3504861
+  0.44418415 0.62464243 0.63719743 0.46409264 0.34994698 0.46070707
+  0.41333762 0.6743419  0.64805    0.31532106 0.41683495 0.42783538
+  0.32572865 0.9018753  0.4278893  0.9061285  0.42892238 0.4196623
+  0.29847297 0.31607    0.25429773 0.25504327 0.43553275 0.9084349
+  0.32062176 0.43071693 0.41749817 0.3225483  0.3531273  0.37724936
+  0.42067155 0.31717768 0.913396   0.25476745 0.42339092 0.2961404
+  0.36398235 0.3576832  0.25805867 0.30937088 0.42178068 0.25710022
+  0.9073977  0.31289256 0.43197852 0.24720846 0.24597631 0.3473468
+  0.20144083 0.25812444 0.31231138 0.30999285 0.42818183 0.42342862
+  0.9238231  0.34887913 0.20178515 0.24544173 0.24648535 0.3457743
+  0.65990806 0.41667145 0.46071234 0.46836418 0.3499381  0.37752315
+  0.25366515 0.43587512 0.29958442 0.3287704  0.3557174  0.28665197
+  0.4184687  0.30622002 0.31054336 0.35304496 0.25605136 0.28587466
+  0.2000514  0.34736645 0.24446459 0.24919501 0.3216926  0.2369132
+  0.89573705 0.46550223 0.35172927 0.64802915 0.3773762  0.41537344
+  0.469477   0.29650423 0.32778576 0.25592017 0.4362702  0.28612012
+  0.360088   0.6766802  0.4325053  0.28366628 0.23532507 0.37120166
+  0.2589879  0.27925593 0.31941855 0.2279934  0.23165709 0.18778011
+  0.3275678  0.21910268 0.3022191  0.37821624 0.32371014 0.6909823
+  0.23279107 0.20002285 0.32055312 0.20928946 0.24821146 0.2611159
+  0.21710464 0.19934049 0.16544184 0.32200155 0.17966081 0.25982547
+  0.27054265 0.23665693 0.42238045 0.81707007 0.2395958  0.20508485
+  0.27406436 0.2373831  0.2262586  0.2725248  0.18894616 0.20231685
+  0.16799441 0.24342927 0.21325241 0.2690262  0.3364328  0.32862774
+  0.45589    0.89040184 0.49747553]]
+
+Start fit.
+Model: "energy_gradient_model"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+feat_geo (FeatureGeometric)  multiple                  306       
+_________________________________________________________________
+feat_std (ConstLayerNormaliz multiple                  306       
+_________________________________________________________________
+mlp (MLP)                    multiple                  25500     
+_________________________________________________________________
+energy (Dense)               multiple                  404       
+_________________________________________________________________
+force (EmptyGradient)        multiple                  0         
+=================================================================
+Total params: 26,516
+Trainable params: 25,904
+Non-trainable params: 612
+_________________________________________________________________
+Epoch 1/20
+3/3 - 0s - loss: 11.5284 - energy_loss: 1.4805 - force_loss: 4.1259 - energy_mean_absolute_error: 1.3374 - energy_lr: 0.0010 - energy_r2_metric: -4.9909e-01 - force_mean_absolute_error: 1.9509 - force_lr: 0.0010 - force_r2_metric: -2.7065e-01
+Epoch 2/20
+3/3 - 0s - loss: 7.2629 - energy_loss: 0.6801 - force_loss: 3.8622 - energy_mean_absolute_error: 0.8704 - energy_lr: 0.0010 - energy_r2_metric: 0.2977 - force_mean_absolute_error: 1.8946 - force_lr: 0.0010 - force_r2_metric: -1.8935e-01
+Epoch 3/20
+3/3 - 0s - loss: 6.4768 - energy_loss: 0.5652 - force_loss: 3.6507 - energy_mean_absolute_error: 0.7945 - energy_lr: 0.0010 - energy_r2_metric: 0.4170 - force_mean_absolute_error: 1.8544 - force_lr: 0.0010 - force_r2_metric: -1.2399e-01
+Epoch 4/20
+3/3 - 0s - loss: 5.1861 - energy_loss: 0.3424 - force_loss: 3.4742 - energy_mean_absolute_error: 0.6151 - energy_lr: 0.0010 - energy_r2_metric: 0.6504 - force_mean_absolute_error: 1.8211 - force_lr: 0.0010 - force_r2_metric: -7.0851e-02
+Epoch 5/20
+3/3 - 0s - loss: 4.5606 - energy_loss: 0.2463 - force_loss: 3.3288 - energy_mean_absolute_error: 0.5048 - energy_lr: 0.0010 - energy_r2_metric: 0.7466 - force_mean_absolute_error: 1.7928 - force_lr: 0.0010 - force_r2_metric: -2.4988e-02
+Epoch 6/20
+3/3 - 0s - loss: 4.5212 - energy_loss: 0.2645 - force_loss: 3.1986 - energy_mean_absolute_error: 0.5254 - energy_lr: 0.0010 - energy_r2_metric: 0.7263 - force_mean_absolute_error: 1.7655 - force_lr: 0.0010 - force_r2_metric: 0.0132
+Epoch 7/20
+3/3 - 0s - loss: 4.2774 - energy_loss: 0.2331 - force_loss: 3.1120 - energy_mean_absolute_error: 0.4977 - energy_lr: 1.0000e-04 - energy_r2_metric: 0.7595 - force_mean_absolute_error: 1.7450 - force_lr: 1.0000e-04 - force_r2_metric: 0.0407
+Epoch 8/20
+3/3 - 0s - loss: 4.1993 - energy_loss: 0.2202 - force_loss: 3.0985 - energy_mean_absolute_error: 0.4829 - energy_lr: 1.0000e-04 - energy_r2_metric: 0.7711 - force_mean_absolute_error: 1.7416 - force_lr: 1.0000e-04 - force_r2_metric: 0.0442
+Epoch 9/20
+3/3 - 0s - loss: 4.1098 - energy_loss: 0.2050 - force_loss: 3.0849 - energy_mean_absolute_error: 0.4653 - energy_lr: 1.0000e-04 - energy_r2_metric: 0.7869 - force_mean_absolute_error: 1.7380 - force_lr: 1.0000e-04 - force_r2_metric: 0.0486
+Epoch 10/20
+3/3 - 1s - loss: 4.0198 - energy_loss: 0.1898 - force_loss: 3.0708 - energy_mean_absolute_error: 0.4457 - energy_lr: 1.0000e-04 - energy_r2_metric: 0.8002 - force_mean_absolute_error: 1.7341 - force_lr: 1.0000e-04 - force_r2_metric: 0.0532 - val_loss: 4.8436 - val_energy_loss: 0.2678 - val_force_loss: 3.5045 - val_energy_mean_absolute_error: 0.5421 - val_energy_lr: 1.0000e-04 - val_energy_r2_metric: 0.7824 - val_force_mean_absolute_error: 1.7760 - val_force_lr: 1.0000e-04 - val_force_r2_metric: 0.0472
+Epoch 11/20
+3/3 - 0s - loss: 3.9406 - energy_loss: 0.1768 - force_loss: 3.0564 - energy_mean_absolute_error: 0.4298 - energy_lr: 1.0000e-04 - energy_r2_metric: 0.8058 - force_mean_absolute_error: 1.7302 - force_lr: 1.0000e-04 - force_r2_metric: 0.0582
+Epoch 12/20
+3/3 - 0s - loss: 3.8976 - energy_loss: 0.1702 - force_loss: 3.0468 - energy_mean_absolute_error: 0.4216 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8221 - force_mean_absolute_error: 1.7274 - force_lr: 1.0000e-05 - force_r2_metric: 0.0614
+Epoch 13/20
+3/3 - 0s - loss: 3.8919 - energy_loss: 0.1693 - force_loss: 3.0454 - energy_mean_absolute_error: 0.4205 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8212 - force_mean_absolute_error: 1.7270 - force_lr: 1.0000e-05 - force_r2_metric: 0.0613
+Epoch 14/20
+3/3 - 0s - loss: 3.8870 - energy_loss: 0.1686 - force_loss: 3.0441 - energy_mean_absolute_error: 0.4195 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8290 - force_mean_absolute_error: 1.7266 - force_lr: 1.0000e-05 - force_r2_metric: 0.0607
+Epoch 15/20
+3/3 - 0s - loss: 3.8819 - energy_loss: 0.1679 - force_loss: 3.0426 - energy_mean_absolute_error: 0.4186 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8262 - force_mean_absolute_error: 1.7262 - force_lr: 1.0000e-05 - force_r2_metric: 0.0614
+Epoch 16/20
+3/3 - 0s - loss: 3.8773 - energy_loss: 0.1672 - force_loss: 3.0412 - energy_mean_absolute_error: 0.4178 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8229 - force_mean_absolute_error: 1.7258 - force_lr: 1.0000e-05 - force_r2_metric: 0.0618
+Epoch 17/20
+3/3 - 0s - loss: 3.8724 - energy_loss: 0.1665 - force_loss: 3.0398 - energy_mean_absolute_error: 0.4169 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8246 - force_mean_absolute_error: 1.7254 - force_lr: 1.0000e-05 - force_r2_metric: 0.0631
+Epoch 18/20
+3/3 - 0s - loss: 3.8681 - energy_loss: 0.1659 - force_loss: 3.0384 - energy_mean_absolute_error: 0.4161 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8278 - force_mean_absolute_error: 1.7250 - force_lr: 1.0000e-05 - force_r2_metric: 0.0631
+Epoch 19/20
+3/3 - 0s - loss: 3.8636 - energy_loss: 0.1653 - force_loss: 3.0370 - energy_mean_absolute_error: 0.4154 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8286 - force_mean_absolute_error: 1.7246 - force_lr: 1.0000e-05 - force_r2_metric: 0.0642
+Epoch 20/20
+3/3 - 0s - loss: 3.8595 - energy_loss: 0.1648 - force_loss: 3.0355 - energy_mean_absolute_error: 0.4148 - energy_lr: 1.0000e-05 - energy_r2_metric: 0.8258 - force_mean_absolute_error: 1.7242 - force_lr: 1.0000e-05 - force_r2_metric: 0.0655 - val_loss: 4.6631 - val_energy_loss: 0.2389 - val_force_loss: 3.4687 - val_energy_mean_absolute_error: 0.5176 - val_energy_lr: 1.0000e-05 - val_energy_r2_metric: 0.8059 - val_force_mean_absolute_error: 1.7671 - val_force_lr: 1.0000e-05 - val_force_r2_metric: 0.0570
+End fit.
+
+Info: Saving auto-scaler to file...
+Info: Predicted Energy shape: (180, 4)
+Info: Predicted Gradient shape: (180, 4, 18, 3)
+Info: Plot fit stats...
+Info: Max error precomputed and full gradient computation:
+Energy 4.1094426705967635e-07
+Gradient 1.0439255189176322e-06
+error_val: [0.5176175836774519, 1.7671309790492622]
+error_train: [0.4142267789113703, 1.7239318931720347]

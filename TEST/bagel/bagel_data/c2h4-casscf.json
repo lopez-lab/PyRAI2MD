@@ -1,0 +1,29 @@
+{ "bagel" : [
+{
+  "title" : "molecule",
+  "basis" : "/work/lopez/Bagel/share/cc-pvdz.json",
+  "df_basis" : "/work/lopez/Bagel/share/cc-pvdz-jkfit.json",
+  "geometry" : [
+{ "atom" : "C", "xyz" : [-6.876489, 0.000000, -4.372932]},
+{ "atom" : "C", "xyz" : [-6.876489, 0.000000, -1.859297]},
+{ "atom" : "H", "xyz" : [-6.876489, 1.744861, -5.455650]},
+{ "atom" : "H", "xyz" : [-6.876489, -1.744861, -5.455650]},
+{ "atom" : "H", "xyz" : [-6.876489, 1.744861, -0.776579]},
+{ "atom" : "H", "xyz" : [-6.876489, -1.744861, -0.776579]}
+  ]
+},
+{
+  "title": "casscf",
+  "natocc" : true,
+  "nstate" : 3,
+  "nact" : 2,
+  "nclosed" : 7,
+  "maxiter" : 50,
+  "active" : [8,9]
+},
+{
+ "title": "save_ref",
+ "file" : "c2h4"
+}
+]}
+

@@ -1,0 +1,90 @@
+&CONTROL
+title         egn
+ml_ncpu       4
+jobtype       prediction
+qm            nn
+
+&NN
+train_data  egn.json
+pred_data   egn.json
+silent      0
+train_mode  training
+nn_eg_type  2
+nn_nac_type 2
+permute_map allpath
+
+&EG
+invd_index     invd
+depth          1
+nn_size        200
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-9
+reg_l2         1e-9
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5  10
+
+&EG2
+invd_index     invd
+depth          2
+nn_size        100
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-8
+reg_l2         1e-8
+val_split      0.1
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5 5 10
+
+&NAC
+invd_index     invd
+phase_less_loss True
+depth          2
+nn_size        100
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-9
+reg_l2         1e-9
+val_split      0.1
+pre_epo        10
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5 5 10
+
+&NAC2
+invd_index     invd
+phase_less_loss True
+depth          1
+nn_size        200
+activ          leaky_softplus
+activ_alpha   0.03
+loss_weights   5 1
+batch_size     64
+use_reg_activ  l2
+use_reg_weight l2
+reg_l1         1e-8
+reg_l2         1e-8
+val_split      0.1
+pre_epo        10
+epo            20
+epostep        10
+learning_rate_step   1e-3 1e-4 1e-5
+epoch_step_reduction 5  5 10

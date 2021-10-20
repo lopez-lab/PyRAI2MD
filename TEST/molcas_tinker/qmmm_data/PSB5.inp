@@ -1,0 +1,67 @@
+>> EXPORT MOLCAS_MOLDEN=ON
+> COPY $MOLCAS_SUBMIT_DIR/$Project.xyz $WorkDir/$Project.xyz
+> COPY $MOLCAS_SUBMIT_DIR/$Project.key $WorkDir/$Project.key
+
+&GATEWAY
+ Tinker
+ basis=3-21G
+ group=C1
+ RICD
+ AMFI
+
+&SEWARD
+ doanalytic
+
+&Espf
+ External=Tinker
+ lamorok
+
+&RASSCF
+ fileorb=$MOLCAS_PROJECT.StrOrb
+ nactel=2 0 0
+ ras2=3
+ inactive=51
+ ciroot=2 2 1
+ rlxroot=1
+
+&ALASKA
+ ROOT=1
+&ALASKA
+ ROOT=2
+&ALASKA
+ NAC=1 2
+
+&CASPT2
+xmultistate
+all
+shift
+0.2
+
+>>COPY   $WorkDir/$Project.JobMix   $WorkDir/JOB001
+
+&RASSCF
+ fileorb=$MOLCAS_PROJECT.StrOrb
+ Spin=3
+ Nactel=2 0 0
+ Inactive=51
+ Ras2=3
+ ITERATIONS=200,100
+ CIRoot=2 2 1
+
+&ALASKA
+ ROOT=1
+
+&CASPT2
+xmultistate
+all
+shift
+0.3
+
+>>COPY   $WorkDir/$Project.JobMix   $WorkDir/JOB002
+
+&RASSI
+Nrof JobIph=2 2 1;1 2;1
+SpinOrbit
+EJob
+SOCOupling=0
+
