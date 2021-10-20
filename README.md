@@ -135,3 +135,10 @@ Or directly run if environment variables are set
 ## Run PyRAI2MD
 
     $PYRAI2MD/pyrai2md.py input
+    
+# User manual
+We are currently working on the user manual.
+
+# Cite us
+- Jingbai Li, Patrick Reiser, Benjamin R. Boswell, André Eberhard, Noah Z. Burns, Pascal Friederich, and Steven A. Lopez, "Automatic discovery of photoisomerization mechanisms with nanosecond machine learning photodynamics simulations", Chem. Sci. 2021. DOI: 10.1039/D0SC05610C
+- Jingbai Li, Rachel Stein, Daniel Adrion, Steven A. Lopez, "Machine-learning photodynamics simulations uncover the role of substituent effects on the photochemical formation of cubanes", ChemRxiv, preprint, DOI:10.33774/chemrxiv-2021-lxsjk
