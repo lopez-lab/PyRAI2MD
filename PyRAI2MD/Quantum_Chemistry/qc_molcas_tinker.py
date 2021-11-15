@@ -172,7 +172,7 @@ class MOLCAS_TINKER(MOLCAS):
         nac      = np.array(nac)
         soc      = np.array(soc)
 
-        return energy, gradient, nac, soc
+        return coord, energy, gradient, nac, soc
 
     def evaluate(self, traj):
         ## main function to run Molcas calculation and communicate with other PyRAIMD modules
@@ -199,7 +199,7 @@ class MOLCAS_TINKER(MOLCAS):
         self._run_molcas()
 
         ## read Molcas output files
-        energy, gradient, nac, soc = self._read_data(traj.natom)
+        coord, energy, gradient, nac, soc = self._read_data(traj.natom)
 
         if  len(energy) >= self.nstate and\
             len(gradient) >= self.nstate and\
