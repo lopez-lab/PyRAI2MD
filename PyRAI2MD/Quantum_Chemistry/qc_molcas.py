@@ -118,6 +118,7 @@ export OMP_NUM_THREADS=%s
 export PATH=$MOLCAS/bin:$PATH
 
 cd $CALCDIR
+mkdir -p $MOLCAS_WORKDIR/$MOLCAS_PROJECT
 $MOLCAS/bin/pymolcas -f $MOLCAS_PROJECT.inp -b 1
 rm -r $MOLCAS_WORKDIR/$MOLCAS_PROJECT
 """ % (     self.molcas,
@@ -153,8 +154,8 @@ rm -r $MOLCAS_WORKDIR/$MOLCAS_PROJECT
         if os.path.exists(self.calcdir) == False:
             os.makedirs(self.calcdir)
 
-        if os.path.exists(self.workdir) == False:
-            os.makedirs(self.workdir)
+        #if os.path.exists(self.workdir) == False:
+        #    os.makedirs(self.workdir)
 
         shutil.copy2('%s.molcas' % (self.project), '%s/%s.inp' % (self.calcdir, self.project))
 
