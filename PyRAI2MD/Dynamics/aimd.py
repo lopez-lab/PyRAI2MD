@@ -200,7 +200,7 @@ class AIMD:
             return None
 
        	## end function early if	velocity reset step is 0 but iteration is more than 1
-        if self.traj['resetstep'] == 0 and self.traj.iter > 1:
+        if self.traj.resetstep == 0 and self.traj.iter > 1:
             return None
 
         ## end function early if velocity reset step is not 0 but iteration is not the multiple of it 
