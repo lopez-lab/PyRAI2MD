@@ -174,6 +174,13 @@ class PYRAI2MD:
                 np.savetxt(initvelo, velo, fmt='%30s%30s%30s')
 
         ## create a trajectory and method model
+        if self.qm == 'nn':
+            train_data = self.keywords[self.qm]['train_data']
+            data = Data()
+            data.load(train_data)
+            data.stat()
+            self.keywords[self.qm]['data'] = data
+
         traj = Trajectory(mol, keywords = self.keywords)
         method = QM(self.qm, keywords = self.keywords, id=None)
         method.load()
