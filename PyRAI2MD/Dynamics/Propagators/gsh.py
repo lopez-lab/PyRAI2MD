@@ -142,7 +142,7 @@ def InternalConversion(z, traj):
     # if current state = old state, we know no surface hop has occurred
     if state != old_state:
 	# Velocity must be adjusted because hop has occurred
-        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = 1, reflect = 1)
+        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = adjust, reflect = reflect)
 
         # if hop is frustrated, revert the current state to old state
         if frustrated == 1:
@@ -288,6 +288,7 @@ def IntersystemCrossing(z, traj):
     E            = traj.energy
     maxhop       = traj.maxh
     dosoc        = traj.dosoc
+    N            = np.zeros(0)
 
     # initialize adjusted velocity, surface hopping type and hopping probability
     Vt = V
@@ -327,7 +328,7 @@ def IntersystemCrossing(z, traj):
     # if current state = old state, we know no surface hop has occurred
     if state != old_state:
 	# Velocity must be adjusted because hop has occurred
-        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = 1, reflect = 1)
+        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N, adjust = np.amin([adjust,1]), reflect = 0)
 
         # if hop is frustrated, revert the current state to old state
         if frustrated == 1:
@@ -359,7 +360,7 @@ def IntersystemCrossingProbability(i, traj):
     Epp          = traj.energy2
     Gp           = traj.grad1
     Ekinp        = traj.kinetic1
-    gap          = traj.gap
+    gap          = traj.gapsoc
     test         = 0
 
     # determine the energy gap and type of crossing
