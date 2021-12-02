@@ -44,6 +44,7 @@ class Trajectory(Molecule):
           * soc_coupling     list        list of spin-orbit coupling pairs
             sfhp             str         surface hopping method
             gap              float       energy gap threshold for Zhu-Nakamura surface hopping
+            gapsoc           float       energy gap threshold for Zhu-Nakamura intersystem crossing
             delt             float       step size for fewest switches surface hopping 
             substep          int         number of substeps for fewest switches surface hopping
             integrate        int         integrate surface hopping probabliy in accumulation scheme (Not recommendated)
@@ -96,7 +97,7 @@ class Trajectory(Molecule):
 
     __slots__ = ['gl_seed', 'initcond', 'excess', 'scale', 'target', 'graddesc', 'reset', 'resetstep',
                  'ninitcond', 'method', 'format', 'temp', 'step', 'size', 'root', 'attr', 'verbose',
-                 'sfhp', 'gap', 'substep', 'integrate', 'deco', 'adjust', 'reflect', 'maxh', 'delt',
+                 'sfhp', 'gap', 'gapsoc', 'substep', 'integrate', 'deco', 'adjust', 'reflect', 'maxh', 'delt',
                  'last_state', 'state', 'last_A', 'last_H', 'last_D', 'A', 'H', 'D', 'dosoc', 'last_soc',
                  'coord1', 'coord2', 'kinetic1', 'kinetic2', 'energy1', 'energy2', 'grad1', 'grad2',
                  'thermo', 'thermodelay', 'Vs', 'iter', 'iter_x', 'hoped', 'history', 'length']
@@ -124,6 +125,7 @@ class Trajectory(Molecule):
         self.root        = key_dict['root']
         self.sfhp        = key_dict['sfhp']
         self.gap         = key_dict['gap']
+        self.gapsoc      = key_dict['gapsoc']
         self.substep     = key_dict['substep']
         self.integrate   = key_dict['integrate']
         self.deco        = key_dict['deco']
