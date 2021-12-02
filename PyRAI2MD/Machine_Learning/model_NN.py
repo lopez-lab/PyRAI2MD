@@ -311,8 +311,8 @@ class DNN:
     def _qm(self, traj):
         ## run psnnsmd for QM calculation
 
-        xyz = np.array(traj.coord[:,1:4])
-
+        xyz = traj.coord.reshape((1, self.natom, 3))
+        print(xyz.shape)
         y_pred,y_std=self.model.call(xyz)
 
         ## initialize return values
@@ -333,6 +333,7 @@ class DNN:
             g_std = y_std['energy_gradient'][1] / self.H_Bohr_to_eV_A
             energy = e_pred[0]
             gradient = g_pred[0]
+            print(gradient.shape)
             err_e = np.amax(e_std)
             err_g = np.amax(g_std)
 
