@@ -311,8 +311,7 @@ class DNN:
     def _qm(self, traj):
         ## run psnnsmd for QM calculation
 
-        xyz = np.array(traj.coord[:,1:4])
-
+        xyz = traj.coord.reshape((1, self.natom, 3))
         y_pred,y_std=self.model.call(xyz)
 
         ## initialize return values

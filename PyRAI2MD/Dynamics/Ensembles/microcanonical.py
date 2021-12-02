@@ -38,10 +38,10 @@ def NVE(traj):
     if iter > 1:
         total_energy = energy1[last_state - 1] + kinetic1
         target_kinetic = total_energy - energy[state - 1]
-        if target_kinetic > 0:
+       	if target_kinetic > 0:
             s = (target_kinetic / kinetic)**0.5
-       	else:
-       	    s =	1 # do not scale negative velocity
+        else:
+            s = 1 # do not scale negative velocity
         traj.kinetic *= s**2
         traj.velo *= s
 

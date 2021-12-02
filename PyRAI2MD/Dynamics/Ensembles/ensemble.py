@@ -41,7 +41,7 @@ def Ensemble(traj):
     elif thermo == '1' or thermo.lower() == 'nvt':
         traj = NoseHoover(traj)
     ## NVE for excited-state, NoseHoover for ground-state after a certain amount of time
-    elif thermo == '2' or thermo.lower() == 'mixednvt':
+    elif thermo == '2' or thermo.lower() == 'nve_nvt':
         if state > 1:
             traj.iter_x = traj.iter
         delay = traj.iter - traj.iter_x
@@ -58,6 +58,7 @@ def Ensemble(traj):
              traj = NoseHoover(traj)
         else:
             return traj
+
     ## TODO add barostat
 
     return traj
