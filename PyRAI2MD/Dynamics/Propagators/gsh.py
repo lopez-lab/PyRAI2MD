@@ -365,7 +365,8 @@ def IntersystemCrossingProbability(i, traj):
 
     # determine the energy gap and type of crossing
     delE = [E[i] - E[state - 1], Ep[i] - Ep[state - 1], Epp[i] - Epp[state - 1]]
-    parallel = np.sign(delE[0]* delE[2])
+    #parallel = np.sign(delE[0]* delE[2])
+    parallel = -1 # assume non-parallel PESs
 
     # total energy in the system at time t2 (t)
     Etotp = Ep[state - 1] + Ekinp
@@ -414,13 +415,9 @@ def IntersystemCrossingProbability(i, traj):
 
     # GOAL: determine sign in denominator of improved Landau Zener formula for switching
     # probability at corssing region
-    #F_1 = E[state - 1] - Epp[state - 1]
-    #F_2 = E[i] - Epp[i]
-    #sign = np.sign(F_1 * F_2)
     sign = np.sign(np.sum(F_ia_1 * F_ia_2))
     if test == 1: print('ISC Compute F sign done: %s' % (sign))
 
-    # sign of slope determines computation of surface
     # hopping probability P (eq 3)
     pi_over_four_term = -(np.pi/ (4 *(a_squared)**0.5))
     if test == 1: print('LZ-P numerator done: %s' % (pi_over_four_term))
