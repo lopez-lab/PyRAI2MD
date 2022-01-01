@@ -404,7 +404,7 @@ class AIMD:
         counter += 1
 
         ## reset counter to 0 at printing step or end point or stopped point
-        if couter == step or couter == end or stop == 1:
+        if counter == step or counter == self.traj.step or self.stop == 1:
             counter = 0
 
         return counter
