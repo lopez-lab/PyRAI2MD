@@ -628,7 +628,7 @@ MaxStd(Energy: %8.4f Gradient: %8.4f NAC: %8.4f SOC: %8.4f) %s\n' % (
                 json.dump(savethis,outfile)
 
         self.completed = completed
-        return self
+        return completed
 
     def _heading(self):
 
