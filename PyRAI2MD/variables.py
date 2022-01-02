@@ -146,9 +146,9 @@ def ReadMD(keywords, values):
     ## This function read variables from &md
     keyfunc = {
         'initdcond'             : ReadVal('i'),
-        'excess'                : ReadVal('i'),
-        'scale'                 : ReadVal('i'),
-        'target'                : ReadVal('i'),
+        'excess'                : ReadVal('f'),
+        'scale'                 : ReadVal('f'),
+        'target'                : ReadVal('f'),
         'graddesc'              : ReadVal('i'),
         'reset'                 : ReadVal('i'),
         'resetstep'             : ReadVal('i'),
