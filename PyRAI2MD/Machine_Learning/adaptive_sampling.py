@@ -401,7 +401,7 @@ class AdaptiveSampling:
                         distance = np.sum((coord1 - coord2)**2)**0.5
                         threshld = BondLib(atom1, atom2)
                         if distance < threshld*0.7:
-                            print(i+1, coord1, j+1, coord2, distance, threshld)
+                            #print(i+1, coord1, j+1, coord2, distance, threshld)
                             unphysical=1
                 if unphysical == 1:
                     discard.append(geo) 
@@ -602,7 +602,7 @@ MaxStd(Energy: %8.4f Gradient: %8.4f NAC: %8.4f SOC: %8.4f) %s\n' % (
 
         ## save adaptive sampling results
         #savethis = {self.iter:checkpoint_dict} ## This saves too much !!
-        print(self.select_geom)
+        #print(self.select_geom)
         savethis = {
             self.iter: {
                 'ntraj'     : self.ntraj,
