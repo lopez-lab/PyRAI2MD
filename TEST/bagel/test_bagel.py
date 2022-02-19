@@ -167,6 +167,10 @@ bagel_workdir %s
 ci       3
 spin     0
 coupling 1 2, 2 3
+
+&MD
+root 1
+activestate 1
 """ % ( record['BAGEL'],
         record['BLAS'],
         record['LAPACK'],

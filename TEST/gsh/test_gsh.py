@@ -34,6 +34,9 @@ def TestGSH():
         'velo'     : 'FileNotFound',
         'velo1'    : 'FileNotFound',
         'velo2'    : 'FileNotFound',
+        'soc'	   : 'FileNotFound',
+        'soc1'     : 'FileNotFound',
+        'soc2'     : 'FileNotFound',
         }
     record2 = {
         'coord'    : 'FileNotFound',
@@ -116,6 +119,17 @@ def TestGSH():
     if os.path.exists(filepath):
         record['velo2'] = filepath
 
+    filepath = '%s/TEST/gsh/gsh_data/c3h2o.soc' % (pyrai2mddir)
+    if os.path.exists(filepath):
+        record['soc'] = filepath
+
+    filepath = '%s/TEST/gsh/gsh_data/c3h2o.soc.1' % (pyrai2mddir)
+    if os.path.exists(filepath):
+        record['soc1'] = filepath
+
+    filepath = '%s/TEST/gsh/gsh_data/c3h2o.soc.2' % (pyrai2mddir)
+    if os.path.exists(filepath):
+        record['soc2'] = filepath
     ## -----------------------------------------------------------
     filepath = '%s/TEST/gsh/gsh_data/c2h4.xyz' % (pyrai2mddir)
     if os.path.exists(filepath):
@@ -232,6 +246,9 @@ Copy internal conversion test files
  %-10s --> %s/c3h2o.velo
  %-10s --> %s/c3h2o.velo.1
  %-10s --> %s/c3h2o.velo.2
+ %-10s --> %s/c3h2o.soc
+ %-10s --> %s/c3h2o.soc.1
+ %-10s --> %s/c3h2o.soc.2
 
 Copy intersystem crossing test files
  %-10s --> %s/c2h4.xyz
@@ -269,6 +286,9 @@ Copy intersystem crossing test files
        'velo',     testdir, 
        'velo1',    testdir, 
        'velo2',    testdir,
+       'soc',	   testdir,
+       'soc1',     testdir,
+       'soc2',     testdir,
        'coord',    testdir,
        'coord1',   testdir,
        'coord2',   testdir,
@@ -337,6 +357,9 @@ def CopyInput(record, record2, testdir):
     shutil.copy2(record['velo'], '%s/c3h2o.velo' % (testdir))
     shutil.copy2(record['velo1'], '%s/c3h2o.velo.1' % (testdir))
     shutil.copy2(record['velo2'], '%s/c3h2o.velo.2' % (testdir))
+    shutil.copy2(record['soc'], '%s/c3h2o.soc' % (testdir))
+    shutil.copy2(record['soc1'], '%s/c3h2o.soc.1' % (testdir))
+    shutil.copy2(record['soc2'], '%s/c3h2o.soc.2' % (testdir))
 
     shutil.copy2(record2['coord'], '%s/c2h4.xyz' % (testdir))
     shutil.copy2(record2['coord1'], '%s/c2h4.xyz.1' % (testdir))
@@ -365,9 +388,9 @@ jobtype       hop
 qm            molcas
 
 &Molecule
-ci       2
-spin     0
-coupling 1 2
+ci       2 1
+spin     0 1
+coupling 1 2, 2 3
 
 &MD
 root 2
