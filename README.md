@@ -19,7 +19,7 @@
                       Author @Jingbai Li
                Northeastern University, Boston, USA
 
-                          version:   2.0 alpha
+                          version:   2.1 alpha
                           
 
   With contriutions from (in alphabetic order):
@@ -47,7 +47,8 @@
  - Neural network training and grid search.
  - Active learning with ML-NAMD trajectories.
  - Support BAGEL, Molcas for QM, and Molcas/Tinker for QM/MM calculations.
- - Support nonadibatic coupling and spin-orbit coupling (Molcas only)
+ - Generalized FSSH and ZNSH with nonadibatic coupling and spin-orbit coupling
+ - Add curvature-driven time-depedent coupling for FSSH
  
 ## Prerequisite
  - **Python >=3.7** PyRAI2MD is written and tested in Python 3.7.4. Older version of Python is not tested and might not be working properly.
