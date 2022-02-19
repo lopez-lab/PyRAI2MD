@@ -351,6 +351,11 @@ class AIMD:
             self.traj.err_soc != None:
 
             log_info += """
+  &surface hopping information
+-------------------------------------------------------
+%s
+-------------------------------------------------------
+
   &error iter %-10s
 -------------------------------------------------------
   Energy   MaxStDev:          %-10.4f
@@ -359,7 +364,8 @@ class AIMD:
   Soc      MaxStDev:          %-10.4f
 -------------------------------------------------------
 
-""" % ( self.traj.iter,
+""" % ( self.traj.shinfo,
+        self.traj.iter,
         self.traj.err_energy,
         self.traj.err_grad,
         self.traj.err_nac,

@@ -12,36 +12,6 @@ import numpy as np
 cimport numpy as np
 from PyRAI2MD.Dynamics.Propagators.tsh_helper import AvoidSingularity, AdjustVelo
 
-cdef kTDC(int s1, int s2, np.ndarray E, np.ndarray Ep, np.ndarray Epp, float dt):
-    """ Computing the curvature-driven time-dependent coupling
-    The method is based on Truhlar et al J. Chem. Theory Comput. 2022 DOI:10.1021/acs.jctc.1c01080
-
-        Parameters:          Type:
-            s1               int        state 1
-            s2               int        state 2
-            E                ndarray    potential energy in the present step
-            Ep               ndarray    potential energy in one step before
-            Epp              ndarray    potential energy in two step before
-            dt               float      time step
-
-        Return:
-            nacme            float      time-dependent nonadiabatic coupling
-
-    """
-
-    cdef float nacme, d2Vdt2, dVt, dVt_dt, dVt_2dt
-
-    dVt = AvoidSingularity(E[s1], E[s2], s1, s2)
-    dVt_dt = AvoidSingularity(Ep[s1], Ep[s2], s1, s2)
-    dVt_2dt = AvoidSingularity(Epp[s1], Epp[s2], s1, s2)
-    d2Vdt2 = (dVt - 2 * dVt_dt + dVt_2dt) / dt ** 2
-    if d2Vdt2 / dVt > 0:
-        nacme = (d2Vdt2 / dVt) ** 0.5 / 2
-    else:
-        nacme = 0
-
-    return nacme
-
 cdef dPdt(np.ndarray A, np.ndarray H, np.ndarray D):
     """ Computing the time derivative of state density for FSSH
     The algorithm is based on Tully's method.John C. Tully, J. Chem. Phys. 93, 1061 (1990)
@@ -102,17 +72,14 @@ cpdef GetNAC(int state, int new_state, list nac_coupling, np.ndarray nac, int na
             nacv             non-adibatic coupling vectors
 
     """
-    cdef list nac_pair
-    cdef int nac_pos
-    cdef np.ndarray nacv
+    cdef int nac_pair, nac_pos
 
     nac_pair = sorted([state - 1, new_state - 1])
     if nac_pair in nac_coupling:
         nac_pos = nac_coupling.index(nac_pair)
         nacv = nac[nac_pos]      # pick up pre-stored non-adiabatic coupling vectors between state and new_state
     else:
-        # if the nac vector does not exsit, return an unity matrix
-        nacv = np.ones((natom, 3))
+        sys.exit('\n  DataNotFoundError\n  PyRAI2MD: looking for nonadibatic coupling between %s and %s' % (state, new_state))
 
     return nacv
 
@@ -152,15 +119,11 @@ cpdef FSSH(dict traj):
     cdef int        old_state    = traj['state']
     cdef int        new_state    = traj['state']
     cdef int        integrate    = traj['integrate']
-    cdef str        nactype      = traj['nactype']
     cdef np.ndarray V            = traj['velo']
     cdef np.ndarray M            = traj['mass']
     cdef np.ndarray E            = traj['energy']
-    cdef np.ndarray Ep           = traj['energy1']
-    cdef np.ndarray Epp          = traj['energy2']
     cdef float      Ekin         = traj['kinetic']
     cdef list       nac_coupling = traj['nac_coupling']
-    cdef list       soc_coupling = traj['soc_coupling']
     cdef list       statemult    = traj['statemult']
 
     cdef np.ndarray At = np.zeros((nstate, nstate), dtype = complex)
@@ -172,66 +135,36 @@ cpdef FSSH(dict traj):
     cdef np.ndarray dHdt = np.zeros((nstate, nstate), dtype = complex)
     cdef np.ndarray dDdt = np.zeros((nstate, nstate), dtype = complex)
 
-    cdef str summary, info
-    cdef int n, i, j, k, p, stop, hoped, nhop, event, s1, s2, frustrated, rstate
-    cdef float deco, z, gsum, Asum, Amm, nacme, revert, hop_gsum, hop_z
+    cdef int n, i, j, k, p, stop, hoped, nhop, event, s1, s2, frustrated
+    cdef float deco, z, gsum, Asum, Amm, nacme
     cdef list pair
-    cdef np.ndarray stateorder, statemap, Vt, g, tau, NAC, exceed, deplet, hop_g
-    hop_g = np.zeros(0)
+    cdef np.ndarray Vt, g, tau, NAC
+
     hoped = 0
     stop = 0
-
-    ## initialize nac matrix
-    if iter > 2:
-        for n, pair in enumerate(nac_coupling):
-            s1, s2 = pair
-            if nactype == 'nac':
-                nacme = np.sum(V * N[n]) / AvoidSingularity(E[s1], E[s2], s1, s2) 
-            elif nactype == 'ktdc':
-                nacme = kTDC(s1, s2, E, Ep, Epp, delt * substep)
-            Dt[s1, s2] = nacme
-            Dt[s2, s1] = -Dt[s1, s2]
-
-    ## initialize soc matrix
-    for n, pair in enumerate(soc_coupling):
+    for n, pair in enumerate(nac_coupling):
         s1, s2 = pair
-        socme = S[n] / 219474.6  # convert cm-1 to Hartree
-        Ht[s1, s2] = socme
-        Ht[s2, s1] = socme
+        nacme = np.sum(V * N[n]) / AvoidSingularity(E[s1], E[s2], s1, s2) 
+        Dt[s1, s2] = nacme
+        Dt[s2, s1] = -Dt[s1, s2]
 
-    ## initialize state index and order
-    stateindex = np.argsort(E)
-    stateorder = np.argsort(E).argsort()
-
-    ## start fssh calculation
-    if iter < 4:
+    if iter == 1:
         At[state - 1, state - 1] = 1
         Vt = V
-        info = 'No surface hopping is performed'
     else:
         dHdt = (Ht - H) / substep
         dDdt = (Dt - D) / substep
         nhop = 0
         
-        if verbose >= 2:
+        if verbose == 2:
             print('-------------- TEST ----------------')
             print('Iter: %s' % (iter))
-            print('Previous Population')
-            print(A)
-            print('Previous Hamiltonian')
-            print(H)
-            print('Previous NAC')
-            print(D)
-            print('Current Hamiltonian')
-            print(Ht)
-            print('Current NAC')
-            print(Dt)
-            print('One step population gradient')
+            print('One step')
             print('dPdt')
             print(dPdt(A,H,D))
             print('matB')
             print(matB(A+dPdt(A,H,D)*delt*substep,H,D)*delt*substep)
-            print('Integration start')
+            print('Integral')
 
         for i in range(substep):
             if integrate == 0:
@@ -248,15 +181,14 @@ cpdef FSSH(dict traj):
             A += dAdt
             dB = matB(A, H, D)
             B += dB
-
-            exceed = np.diag(np.real(A)) - 1
-            deplet = 0 - np.diag(np.real(A))
-            rstate = [np.argmax(exceed), np.argmax(deplet)][np.argmax([np.amax(exceed), np.amax(deplet)])]
-            revert = np.amax([exceed[rstate], deplet[rstate]])
-            if revert > 0:
-                A -= dAdt * np.abs(revert / np.real(dAdt)[rstate, rstate])  # revert A
-                B -= dB * np.abs(revert / np.real(dAdt)[rstate, rstate])
-                stop = 1 # stop if population exceed 1 or less than 0
+            for p in range(nstate):
+                if np.real(A[p, p]) > 1 or np.real(A[p, p]) < 0:
+                    A -= dAdt  # revert A
+                    B -= dB
+                    ## TODO p > 1 => p = 1 ; p<0 => p=0
+                    stop = 1   # stop if population exceed 1 or less than 0            
+            if stop == 1:
+                break
 
             for j in range(nstate):
                 if j != state - 1:
@@ -266,23 +198,24 @@ cpdef FSSH(dict traj):
 
             gsum = 0
             for j in range(nstate):
-                gsum += g[stateindex[j]]
-                nhop = np.abs(stateorder[j] - stateorder[state - 1])
-                if gsum > z and nhop <= maxhop:
-                    new_state = j + 1
-                    event = 1
-                    hop_g = np.copy(g)
-                    hop_gsum = gsum
-                    hop_z = z
-                    break
+                if statemult[j] == statemult[state - 1]:   # check for the same spin states
+                    gsum += g[j]
+                    nhop = np.abs(j + 1 - state)
+                    if gsum > z and nhop <= maxhop:
+                        new_state = j + 1
+                        nhop = np.abs(j + 1 - state)
+                        event = 1
+                        break
 
             if verbose > 2:
                 print('\nSubIter: %5d' % (i+1))
-                print('D nac matrix')
+                print('NAC')
+                print(Dt)
+                print('D')
                 print(D)
-                print('A population matrix')
+                print('A')
                 print(A)
-                print('B transition matrix')
+                print('B')
                 print(B)
                 print('Probabality')
                 print(' '.join(['%12.8f' % (x) for x in g]))
@@ -334,9 +267,6 @@ cpdef FSSH(dict traj):
                         elif k != state - 1 and j == state - 1:
                             A[k, j] *= np.exp(-delt / tau[k]) * (np.real(A[state - 1, state - 1]) / Amm)**0.5
 
-            if stop == 1:
-                break
-
         ## final decision on velocity
         if state == old_state:   # not hoped
             Vt = V               # revert scaled velocity
@@ -349,22 +279,6 @@ cpdef FSSH(dict traj):
             else:                # frustrated hopping
                 hoped = 2
 
-        At = A
+        At=A
 
-        if len(hop_g) == 0:
-            hop_g = g
-            hop_z = z
-            hop_gsum = gsum
-
-        summary = ''
-        for n in range(nstate):
-            summary += '    %-5s %-5s %-5s %12.8f\n' % (n + 1, statemult[n], stateorder[n] + 1, hop_g[n])
-
-        info = """
-    Random number:           %12.8f
-    Accumulated probability: %12.8f
-    state mult  level   probability 
-%s
-    """ % (hop_z, hop_gsum, summary)
-
-    return At, Ht, Dt, Vt, hoped, old_state, state, info
+    return At, Ht, Dt, Vt, hoped, old_state, state

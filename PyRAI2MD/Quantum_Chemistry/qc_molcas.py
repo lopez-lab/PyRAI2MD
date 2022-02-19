@@ -24,6 +24,8 @@ class MOLCAS:
             nstate           int         number of electronic states
             nnac             int         number of non-adiabatic couplings
             nsoc             int         number of spin-orbit couplings
+            state            int         the current state
+            activestate      int         compute gradient only for the current state
             ci               list        number of state per spin multiplicity
             mult             list        spin multiplicity
             nac_coupling     list        non-adiabatic coupling pairs
@@ -59,6 +61,8 @@ class MOLCAS:
         self.nnac           = 0
         self.nsoc           = 0
         self.soc_coupling   = []
+        self.state          = 0
+        self.activestate    = 0
         variables           = keywords['molcas']
         self.keep_tmp       = variables['keep_tmp']
         self.verbose        = variables['verbose']
@@ -157,7 +161,33 @@ rm -r $MOLCAS_WORKDIR/$MOLCAS_PROJECT
         #if os.path.exists(self.workdir) == False:
         #    os.makedirs(self.workdir)
 
-        shutil.copy2('%s.molcas' % (self.project), '%s/%s.inp' % (self.calcdir, self.project))
+        if self.activestate == 1:
+            input = input.split('&')
+            si_input = []
+            grad_pos = 1
+            grad_root = 1
+            for n, substate in enumerate(self.ci):
+                if self.state > np.sum(self.ci[:n]) and self.state <= np.sum(self.ci[:n + 1]):
+                    grad_pos = n + 1
+                    grad_root = self.state - np.sum(self.ci[:n])
+            section = 0
+            for n, line in enumerate(input):
+                if 'ALASKA' in line.upper() and 'ROOT' in line.upper():
+                    continue
+                else:
+                    si_input.append(line)
+
+       	       	if 'RASSCF' in line.upper():
+       	       	    section += 1
+                    if grad_pos == section:
+                        si_input.append('ALASKA\nROOT=%d\n' % (grad_root))
+
+            si_input = '&'.join(si_input)
+
+            with open('%s/%s.inp' % (self.calcdir, self.project), 'w') as newinput:
+                newinput.write(si_input)
+        else:
+            shutil.copy2('%s.molcas' % (self.project), '%s/%s.inp' % (self.calcdir, self.project))
 
         ## prepare .xyz .StrOrb files
         self._write_coord(x)
@@ -299,12 +329,19 @@ rm -r $MOLCAS_WORKDIR/$MOLCAS_PROJECT
         if len(self.soc_coupling) > 0 and len(soc_mtx) > 0:
             for pair in self.soc_coupling:
                 s1, s2 = pair
-                socme = float(soc_mtx[s1, s2 - self.ci[0] + sin_state])
+                socme = float(soc_mtx[s1, s2 - self.ci[0] + sin_state]) ## assume low spin is in front of high spin (maybe generalize later)
                 soc.append(socme)
 
         ## pack data
         energy   = np.array(casscf)
-        gradient = np.array(gradient)
+
+        if self.activestate == 1:
+            gradall = np.zeros((self.nstate, natom, 3))
+            gradall[self.state - 1] = np.array(gradient)
+            gradient = gradall            
+        else:
+            gradient = np.array(gradient)
+
         nac      = np.array(nac)
         soc      = np.array(soc)
 
@@ -374,6 +411,8 @@ rm -r $MOLCAS_WORKDIR/$MOLCAS_PROJECT
         self.nsoc = traj.nsoc
         self.nnac = traj.nnac
         self.nstate = traj.nstate
+        self.state  = traj.state
+        self.activestate = traj.activestate
 
         ## compute properties
         energy = []

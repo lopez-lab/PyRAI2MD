@@ -124,6 +124,10 @@ molcas_calcdir %s
 ci       3 2
 spin     0 1
 coupling 1 2, 2 3, 4 5, 2 4, 2 5 
+
+&MD
+root 4
+activestate 1
 """ % ( record['MOLCAS'],
         testdir)
 

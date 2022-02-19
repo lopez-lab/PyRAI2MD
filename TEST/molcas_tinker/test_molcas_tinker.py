@@ -206,6 +206,10 @@ ci       2 1
 spin     0 1
 coupling 1 2, 1 3, 2 3
 qmmm_key  PSB5.key
+
+&MD
+root 2
+activestate 1
 """ % ( record['MOLCAS'],
         record['TINKER'],
         testdir)

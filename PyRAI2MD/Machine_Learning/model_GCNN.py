@@ -1,9 +1,9 @@
 #####################################################
 #
-# PyRAI2MD 2 module for interfacing to NNsForMD
+# PyRAI2MD 2 module for interfacing to NNsForMD(KCGNN)
 #
 # Author Jingbai Li
-# Sep 22 2021
+# Feb 19 2022
 #
 ######################################################
 
@@ -13,10 +13,9 @@ from PyRAI2MD.Machine_Learning.hypernn import SetHyperEG, SetHyperNAC, SetHyperS
 from PyRAI2MD.Machine_Learning.permutation import PermuteMap
 from PyRAI2MD.Utils.timing import WhatIsTime, HowLong
 
-from NNsMD.nn_pes import NeuralNetPes
-from NNsMD.nn_pes_src.device import set_gpu
+from pyNNsMD.NNsMD import NeuralNetEnsemble
 
-class DNN:
+class GCNN:
     """ pyNNsMD interface
 
         Parameters:          Type:
@@ -176,9 +175,9 @@ class DNN:
 
         ## initialize model
         if   modeldir == None or id not in [None, 1]:
-            self.model = NeuralNetPes(self.name)
+            self.model = NeuralNetEnsemble(self.name)
         else:
-            self.model = NeuralNetPes(modeldir)
+            self.model = NeuralNetEnsemble(modeldir)
 
     def _heading(self):
 

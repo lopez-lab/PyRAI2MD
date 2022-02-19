@@ -37,8 +37,6 @@ def GSH(traj):
     V            = traj.velo
     M            = traj.mass
     E            = traj.energy
-    statemult    = traj.statemult
-    maxhop       = traj.maxh
 
     z = np.random.uniform(0, 1) # random number
 
@@ -51,55 +49,26 @@ def GSH(traj):
     Vt = V
     hop_type = 'no hopping'
 
-    # initialize state index and order
-    stateindex = np.argsort(E)
-    stateorder = np.argsort(E).argsort()
-
     # compute surface hopping probability
     if iter > 2:
+        ic_P, ic_state, ic_hop, ic_Vt = InternalConversion(z, traj)
+        is_P, is_state, is_hop, is_Vt = IntersystemCrossing(z, traj)
 
-        # array of approximate NAC matrix for the same spin multiplicity, unity for different spin
-        N = np.ones([nstate, V.shape[0], V.shape[1]])
-
-        # array of hopping probability
-        g = np.zeros(nstate)
-
-        target_spin = statemult[state - 1]
-
-        for i in range(nstate):
-
-            # skip the present state
-            if i == state - 1:
-                continue
-
-            state_spin = statemult[i]
-
-            if state_spin == target_spin:
-                P, N[i] = InternalConversionProbability(i, traj)
-            else:
-                P = IntersystemCrossingProbability(i, traj)
-
-            g[i] += P
-
-        gsum = 0
-        for j in range(nstate):
-            gsum += g[stateindex[j]]
-            nhop = np.abs(stateorder[j] - stateorder[state - 1])
-            if gsum > z and nhop <= maxhop:
-                new_state = j + 1
-                event = 1
-                break
-
-        # if current state = old state, we know no surface hop has occurred
-        if state != old_state:
-            # Velocity must be adjusted because hop has occurred
-            Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = adjust, reflect = reflect)
-
-            # if hop is frustrated, revert the current state to old state
-            if frustrated == 1:
-                state = old_state
-                hoped = 2
-
+    # determine internal conversion or intersystem crossing
+    # assume internal conversion is faster than intersystem crossing
+    if ic_hop != 0:
+        # do internal conversion
+        hop_type = 'Inter Conv'
+        new_state = ic_state
+        hoped = ic_hop
+        Vt = ic_Vt
+    elif ic_hop == 0 and is_hop != 0:
+        # do intersystem crossing
+        hop_type = 'Intsys Crs'
+        new_state = is_state
+        hoped = is_hop
+        Vt = is_Vt
+        
     # allocate zeros vector for population state density
     At = np.zeros([nstate, nstate])
 
@@ -112,21 +81,76 @@ def GSH(traj):
     # Current non-adiabatic matrix
     Dt = np.zeros([nstate, nstate])
 
-    summary = ''
-    for n in range(nstate):
-        summary += '    %-5s %-5s %-5s %12.8f\n' % (n + 1, statemult[n], stateorder[n] + 1, g[n])
-
-        info = """
-    Random number:           %12.8f
-    Accumulated probability: %12.8f
-    state mult  level   probability
-%s
-    """ % (z, gsum, summary)
-
     if iter > 2 and verbose >= 2:
-        print(info)
+        # prints taken from reference code
+        print('Iter: %s' % (iter))
+        print('Random:              %10.6f' % (z))
+        print('Internal Conversion: %10.6f  old state %2d new state %2d type %2d' % (ic_P, old_state, ic_state, ic_hop))
+        print('Intersystem Crossing:%10.6f  old state %2d new state %2d type %2d' % (is_P, old_state, is_state, is_hop))
+        print('Decision:            %10s  old state %2d new state %2d type %2d' % (hop_type, old_state, new_state, hoped))
+        print('-----------------------------------------------------------')
 
+    info = ''
     return At, Ht, Dt, Vt, hoped, old_state, new_state, info
+
+def InternalConversion(z, traj):
+    """ Determine surface hopping state of internal convertion
+        The algorithm is based on Zhu-Nakamura Theory, C. Zhu, Phys. Chem. Chem. Phys., 2014, 16, 25883--25895
+
+        Parameters:          Type:
+            traj             class	 trajectory class
+
+        Return:              Type:
+            state            int         new state to hop
+            hoped            int         surface hopping type
+            Vt               ndarray     adjusted velocity
+
+    """
+
+    nstate       = traj.nstate
+    statemult    = traj.statemult
+    state        = traj.state
+    old_state    = traj.state
+    adjust       = traj.adjust
+    reflect      = traj.reflect
+    V            = traj.velo
+    M            = traj.mass
+    E            = traj.energy
+    maxhop       = traj.maxh
+
+    # initialize NAC array, adjusted velocity, surface hopping type and hopping probability
+    N = np.zeros([nstate, V.shape[0], V.shape[1]])
+    Vt = V
+    hoped = 0
+    Psum = 0
+
+    # compute surface hopping for internal conversion
+    target_spin = statemult[state - 1]
+    for i in range(nstate):
+        state_spin = statemult[i]
+        if state_spin == target_spin:
+            P, N[i] = InternalConversionProbability(i, traj)
+            Psum += P
+            nhop = np.abs(i + 1 - state)
+
+            # describes when to stop accumulating the probability, based on stochastic point
+            # find largest state w P > random number, z
+            if Psum > z and nhop <= maxhop:
+                state = i + 1     # surface hop has already happened, assign new state index
+                hoped = 1         # has hop happened or not?
+                break
+
+    # if current state = old state, we know no surface hop has occurred
+    if state != old_state:
+	# Velocity must be adjusted because hop has occurred
+        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = adjust, reflect = reflect)
+
+        # if hop is frustrated, revert the current state to old state
+        if frustrated == 1:
+            state = old_state
+            hoped = 2
+
+    return Psum, state, hoped, Vt
 
 def InternalConversionProbability(i, traj):
     """ Computing the probability of internal convertion
@@ -240,6 +264,79 @@ def InternalConversionProbability(i, traj):
     if test == 1: print('IC  P done: %s' % (P))
 
     return P, NAC
+
+def IntersystemCrossing(z, traj):
+    """ Determine surface hopping state of intersystem crossing
+        The algorithm is based on Zhu-Nakamura Theory, C. Zhu, Phys. Chem. Chem. Phys., 2020,22, 11440-11451
+
+        Parameters:          Type:
+            traj             class	 trajectory class
+
+        Return:              Type:
+            state            int         new state to hop
+            hoped            int         surface hopping type
+            Vt               ndarray     adjusted velocity
+
+    """
+    nstate       = traj.nstate
+    statemult    = traj.statemult
+    state        = traj.state
+    old_state    = traj.state
+    adjust       = traj.adjust
+    reflect      = traj.reflect
+    V            = traj.velo
+    M            = traj.mass
+    E            = traj.energy
+    maxhop       = traj.maxh
+    dosoc        = traj.dosoc
+    N            = np.zeros(0)
+
+    # initialize adjusted velocity, surface hopping type and hopping probability
+    Vt = V
+    hoped = 0
+    Psum = 0
+
+    # skip soc if not requested
+    if dosoc == 0:
+        return Psum, state, hoped, Vt
+    
+    # compute state order
+    target_spin = statemult[state - 1]
+    state_en = [E[state - 1]]
+    for i in range(nstate):
+        state_spin = statemult[i]
+        if state_spin != target_spin:
+            state_en.append(E[i])
+    state_order = np.argsort(state_en).argsort()
+
+    # compute surface hopping for intersystem crossing
+    n = -1
+    for i in range(nstate):
+        state_spin = statemult[i]
+        if state_spin != target_spin:
+            n += 1
+            P = IntersystemCrossingProbability(i, traj)
+            Psum += P
+            nhop = np.abs(state_order[n] - state_order[0])
+
+            # describes when to stop accumulating the probability, based on stochastic point
+            # find largest state w P > random number, z
+            if Psum > z and nhop <= maxhop:
+                state = i + 1     # surface hop has already happened, assign new state index
+                hoped = 1         # has hop happened or not?
+                break
+
+    # if current state = old state, we know no surface hop has occurred
+    if state != old_state:
+	# Velocity must be adjusted because hop has occurred
+        Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N, adjust = np.amin([adjust,1]), reflect = 0)
+
+        # if hop is frustrated, revert the current state to old state
+        if frustrated == 1:
+            state = old_state
+            hoped = 2
+
+    return Psum, state, hoped, Vt
 
 def IntersystemCrossingProbability(i, traj):
     """ Computing the probability of intersystem crossing

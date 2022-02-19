@@ -63,6 +63,7 @@ class HopProb:
         self.energy = np.zeros(0)
         self.energy1 = np.zeros(0)
         self.energy2 = np.zeros(0)
+        self.energy3 = np.zeros(0)
         self.grad = np.zeros(0)
         self.grad1 = np.zeros(0)
         self.grad2 = np.zeros(0)
@@ -86,6 +87,7 @@ class HopProb:
         'energy'   : 'Not Read',
         'energy1'  : 'Not Read',
         'energy2'  : 'Not Read',
+        'energy3'  : 'Not Read',
         'grad'     : 'Not Read',
        	'grad1'    : 'Not Read',
        	'grad2'    : 'Not Read',
@@ -128,6 +130,11 @@ class HopProb:
         if os.path.exists(energy2) == True:
        	    self.energy2 = np.loadtxt(energy2)
        	    self.record['energy2'] = 'Read From %s' % (energy2)
+
+        energy3 = '%s.3' % (energy)
+        if os.path.exists(energy3) == True:
+            self.energy3 = np.loadtxt(energy3)
+            self.record['energy3'] = 'Read From %s' % (energy3)
 
         ## load grad
         grad = '%s/%s.grad' % (self.datapath, self.title)
@@ -208,17 +215,17 @@ class HopProb:
         self.traj.coord1 = self.coord2
         self.traj.energy = self.energy1
         self.traj.energy1 = self.energy2
+        self.traj.energy2 = self.energy3
         self.traj.grad = self.grad1
         self.traj.grad1 = self.grad2
         self.traj.kinetic = self.kinetic1
         self.traj.kinetic1 = self.kinetic2
         self.traj.nac = self.nac1
         self.traj.soc = self.soc1
-        self.traj.iter = 1 # this will only initialize A, H, D
-        self.traj = SurfaceHopping(self.traj)
+        if self.traj.sfhp == 'fssh':
+            self.traj.iter = 3 # this will only initialize A, H, D
+            self.traj = SurfaceHopping(self.traj)
 
-        ## update current population, energy matrix, and non-adiabatic coupling matrix
-        self.traj = SurfaceHopping(self.traj)
         ## update nuclear and electronic properties
         self.traj.update_nu()
         self.traj.update_el()
@@ -292,6 +299,13 @@ class HopProb:
             pot,
             self.traj.energy[self.traj.last_state - 1],
             hop_info)
+
+        log_info += '''
+  &surface hopping information
+-------------------------------------------------------
+%s
+-------------------------------------------------------
+''' % (self.traj.shinfo)
 
         ## print log on screen
         if self.silent == 0:

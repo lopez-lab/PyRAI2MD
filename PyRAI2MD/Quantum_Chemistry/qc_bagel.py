@@ -24,6 +24,8 @@ class BAGEL:
             nstate           int	number of electronic state
             nnac             int        number of non-adiabatic couplings
             nac_coupling     list       non-adibatic coupling pairs
+            state            int        current state
+            activestate      int        only compute gradient for current state
             keep_tmp         int	keep the BAGEL calculation folders (1) or not (0).
             verbose          int	print level.
             project          str	calculation name.
@@ -54,6 +56,8 @@ class BAGEL:
         self.nstate         = 0
         self.nnac           = 0
         self.nac_coupling   = []
+        self.state          = 0
+        self.activestate    = 0
         variables           = keywords['bagel']
         self.keep_tmp       = variables['keep_tmp']
         self.verbose        = variables['verbose']
@@ -185,6 +189,10 @@ cd $BAGEL_WORKDIR
         si_input = input.copy()
         si_input['bagel'][0]['geometry'] = jxyz
 
+        ## default is to use template force setting, replace with the current state if requested
+        if self.activestate == 1:
+            si_input['bagel'][2]['grads'] = [{'title': 'force', 'target': self.state - 1}]
+
         ## save xyz file
         with open('%s/%s.json' % (self.workdir, self.project), 'w') as out:
             json.dump(si_input, out)
@@ -228,7 +236,11 @@ cd $BAGEL_WORKDIR
                 with open('%s/FORCE_%s.out' % (self.workdir, i)) as force:
                     g = force.read().splitlines()[1: natom + 1]
                     g = S2F(g)
-                gradient.append(g)
+            else:
+                g = [[0, 0, 0] for x in range(natom)]
+
+            gradient.append(g)
+
         gradient = np.array(gradient)
 
         ## pack nac
@@ -299,6 +311,8 @@ cd $BAGEL_WORKDIR
         self.nstate = traj.nstate
         self.nnac = traj.nnac
         self.nac_coupling = traj.nac_coupling
+        self.state = traj.state
+        self.activestate = traj.activestate
 
         ## compute properties
         energy = []

@@ -159,7 +159,10 @@ def ReadMD(keywords, values):
         'step'                  : ReadVal('i'),
         'size'                  : ReadVal('f'),
         'root'                  : ReadVal('i'),
+        'activestate'           : ReadVal('i'),
         'sfhp'                  : ReadVal('s'),
+        'nactype'               : ReadVal('s'),
+        'phasecheck'            : ReadVal('i'),
         'gap'                   : ReadVal('f'),
         'gapsoc'                : ReadVal('f'),
         'substep'               : ReadVal('i'),
@@ -431,10 +434,13 @@ def ReadInput(input):
         'step'                  : 10,
         'size'                  : 20.67,
         'root'                  : 1,
+        'activestate'           : 0,
         'sfhp'                  :'nosh',
+        'nactype'               :'ktdc',
+        'phasecheck'            : 0,
         'gap'                   : 0.5,
         'gapsoc'                : 0.5,
-        'substep'               : 0,
+        'substep'               : 20,
         'integrate'             : 0,
         'deco'                  :'0.1',
         'adjust'                : 1,
@@ -846,7 +852,10 @@ def StartInfo(variables_all):
   Temperature (K):            %-10s
   Step:                       %-10s
   Dt (au):                    %-10s
+  Only active state grad      %-10s
   Surface hopping:            %-10s
+  NAC type:                   %-10s
+  Phase correction            %-10s
   Substep:                    %-10s
   Integrate probability       %-10s
   Decoherance:                %-10s
@@ -868,7 +877,10 @@ def StartInfo(variables_all):
         variables_md['temp'],
         variables_md['step'],
         variables_md['size'],
+        variables_md['activestate'],
         variables_md['sfhp'],
+        variables_md['nactype'],
+        variables_md['phasecheck'],
         variables_md['substep'],
         variables_md['integrate'],
         variables_md['deco'],

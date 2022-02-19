@@ -42,7 +42,10 @@ class Trajectory(Molecule):
           * coupling         list        list of interstate coupling pairs
           * nac_coupling     list        list of non-adiabatic coupling pairs
           * soc_coupling     list        list of spin-orbit coupling pairs
+            activestate      int         compute gradient only for active (current) state
             sfhp             str         surface hopping method
+            nactype          str         nonadiabatic coupling approximation type
+            phasecheck       int         nonadiabatic coupling phase correction based on the time overlap
             gap              float       energy gap threshold for Zhu-Nakamura surface hopping
             gapsoc           float       energy gap threshold for Zhu-Nakamura intersystem crossing
             delt             float       step size for fewest switches surface hopping 
@@ -61,6 +64,7 @@ class Trajectory(Molecule):
             last_A           ndarray     the previous state denesity matrix
             last_H           ndarray     the previous energy matrix
             last_D           ndarray     the previous non-adiabatic matrix
+            last_nac         ndarray     the previous nonadiabatic coupling
             last_soc         ndarray     the previous spin-orbit coupling
             last_state       int         the previous state
             state            int         the present state
@@ -87,6 +91,7 @@ class Trajectory(Molecule):
             length           int         length of md history
           * status           int         molecular property calculation status
             verbose          int         verbose level of output information
+            shinfo           str         surface hopping information
 
         Functions:           Returns:
             record           self        record the latest trajectory snapshot
@@ -96,11 +101,11 @@ class Trajectory(Molecule):
     """
 
     __slots__ = ['gl_seed', 'initcond', 'excess', 'scale', 'target', 'graddesc', 'reset', 'resetstep',
-                 'ninitcond', 'method', 'format', 'temp', 'step', 'size', 'root', 'attr', 'verbose',
+                 'ninitcond', 'method', 'format', 'temp', 'step', 'size', 'root', 'attr', 'verbose', 'phasecheck',
                  'sfhp', 'gap', 'gapsoc', 'substep', 'integrate', 'deco', 'adjust', 'reflect', 'maxh', 'delt',
-                 'last_state', 'state', 'last_A', 'last_H', 'last_D', 'A', 'H', 'D', 'dosoc', 'last_soc',
-                 'coord1', 'coord2', 'kinetic1', 'kinetic2', 'energy1', 'energy2', 'grad1', 'grad2',
-                 'thermo', 'thermodelay', 'Vs', 'iter', 'iter_x', 'hoped', 'history', 'length']
+                 'last_state', 'state', 'last_A', 'last_H', 'last_D', 'A', 'H', 'D', 'dosoc', 'last_nac','last_soc',
+                 'coord1', 'coord2', 'kinetic1', 'kinetic2', 'energy1', 'energy2', 'grad1', 'grad2', 'activestate',
+                 'thermo', 'thermodelay', 'Vs', 'iter', 'iter_x', 'hoped', 'history', 'length', 'shinfo', 'nactype']
 
     def	__init__(self, mol, keywords = None):
         super().__init__(mol, keywords = keywords)
@@ -123,7 +128,10 @@ class Trajectory(Molecule):
         self.step        = key_dict['step']
         self.size        = key_dict['size']
         self.root        = key_dict['root']
+        self.activestate = key_dict['activestate']
         self.sfhp        = key_dict['sfhp']
+        self.nactype     = key_dict['nactype']
+        self.phasecheck  = key_dict['phasecheck']
         self.gap         = key_dict['gap']
         self.gapsoc      = key_dict['gapsoc']
         self.substep     = key_dict['substep']
@@ -143,6 +151,7 @@ class Trajectory(Molecule):
         self.last_A      = np.zeros(0)
         self.last_H      = np.zeros(0)
         self.last_D      = np.zeros(0)
+        self.last_nac    = np.zeros(0)
         self.last_soc    = np.zeros(0)
         self.A           = np.zeros(0)
         self.H           = np.zeros(0)
@@ -160,7 +169,8 @@ class Trajectory(Molecule):
         self.iter_x      = 0
         self.hoped       = 0
         self.history     = []
-        self.delt        = 0.2
+        self.delt        = 0.4134
+        self.shinfo      = ''
 
         ## adjust step size for FSSH
         if self.substep == 0:
@@ -214,6 +224,21 @@ class Trajectory(Molecule):
         self.last_H = np.copy(self.H)
         self.last_D = np.copy(self.D)
         self.last_soc = np.copy(self.soc)
+        self.last_nac = self._phase_correction(self.last_nac, self.nac)
         self.last_state = self.state
 
         return self
+
+    def _phase_correction(self, ref, nac):
+        ## nac phase correction based on time overlap
+        if self.phasecheck == 0 or len(ref) == 0:
+            cnac = np.copy(nac)
+
+        else:
+            cnac = []
+            for n, d in enumerate(ref):
+                f = np.sign(np.sum(ref * nac[n]))
+                cnac.append(f * nac[n])
+            cnac = np.array(cnac)
+
+        return cnac

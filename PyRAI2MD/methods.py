@@ -11,6 +11,7 @@ from PyRAI2MD.Quantum_Chemistry.qc_molcas import MOLCAS
 from PyRAI2MD.Quantum_Chemistry.qc_bagel import BAGEL
 from PyRAI2MD.Quantum_Chemistry.qc_molcas_tinker import MOLCAS_TINKER
 from PyRAI2MD.Machine_Learning.model_NN import DNN
+##from PyRAI2MD.Machine_Learning.model_GCNN import GCNN
 
 class QM:
     """ Electronic structure method class
@@ -36,6 +37,7 @@ class QM:
             'mlctkr' : MOLCAS_TINKER,
             'bagel'  : BAGEL,
             'nn'     : DNN,
+          ##'gcnn'   : GCNN,
         }
 
         self.method = qm_list[qm](keywords = keywords, id = id) # This should pass hypers

@@ -168,7 +168,14 @@ class MOLCAS_TINKER(MOLCAS):
 
         ## pack data
         energy   = np.array(casscf)
-        gradient = np.array(gradient)
+
+        if self.activestate == 1:
+            gradall = np.zeros((self.nstate, natom, 3))
+            gradall[self.state - 1] = np.array(gradient)
+            gradient = gradall
+        else:
+            gradient = np.array(gradient)
+
         nac      = np.array(nac)
         soc      = np.array(soc)
 
@@ -184,6 +191,8 @@ class MOLCAS_TINKER(MOLCAS):
         self.nsoc = traj.nsoc
         self.nnac = traj.nnac
         self.nstate = traj.nstate
+        self.state  = traj.state
+        self.activestate = traj.activestate
 
         ## compute properties
         energy = []
