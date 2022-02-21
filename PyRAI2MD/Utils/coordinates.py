@@ -174,8 +174,9 @@ def ReadTinkerKey(xyz, key, dtype):
             velo = np.zeros(0)
 
     elif dtype == 'dict':
-        txyz = dict['txyz']
-        velo = dict['velo']
+        txyz = xyz['txyz']
+        velo = xyz['velo']
+        velo = np.array([x.replace('D', 'e').split() for x in velo]).astype(float)
 
     ## check key
     highlevel = []

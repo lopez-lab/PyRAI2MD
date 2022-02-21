@@ -1883,7 +1883,7 @@ static const char __pyx_k_Accumulated_probability[] = "\n    Accumulated probabi
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_One_step_population_gradient[] = "One step population gradient";
 static const char __pyx_k_state_mult_level_probability[] = "\n    state mult  level   probability \n";
-static const char __pyx_k_No_surface_hopping_is_performed[] = "No surface hopping is performed";
+static const char __pyx_k_No_surface_hopping_is_performed[] = "  No surface hopping is performed";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
@@ -4910,7 +4910,7 @@ static PyObject *__pyx_f_8PyRAI2MD_8Dynamics_11Propagators_4fssh_FSSH(PyObject *
  *     if iter < 4:
  *         At[state - 1, state - 1] = 1             # <<<<<<<<<<<<<<
  *         Vt = V
- *         info = 'No surface hopping is performed'
+ *         info = '  No surface hopping is performed'
  */
     __pyx_t_1 = __Pyx_PyInt_From_long((__pyx_v_state - 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
@@ -4931,7 +4931,7 @@ static PyObject *__pyx_f_8PyRAI2MD_8Dynamics_11Propagators_4fssh_FSSH(PyObject *
  *     if iter < 4:
  *         At[state - 1, state - 1] = 1
  *         Vt = V             # <<<<<<<<<<<<<<
- *         info = 'No surface hopping is performed'
+ *         info = '  No surface hopping is performed'
  *     else:
  */
     __Pyx_INCREF(((PyObject *)__pyx_v_V));
@@ -4940,7 +4940,7 @@ static PyObject *__pyx_f_8PyRAI2MD_8Dynamics_11Propagators_4fssh_FSSH(PyObject *
     /* "PyRAI2MD/Dynamics/Propagators/fssh.pyx":210
  *         At[state - 1, state - 1] = 1
  *         Vt = V
- *         info = 'No surface hopping is performed'             # <<<<<<<<<<<<<<
+ *         info = '  No surface hopping is performed'             # <<<<<<<<<<<<<<
  *     else:
  *         dHdt = (Ht - H) / substep
  */
@@ -4958,7 +4958,7 @@ static PyObject *__pyx_f_8PyRAI2MD_8Dynamics_11Propagators_4fssh_FSSH(PyObject *
   }
 
   /* "PyRAI2MD/Dynamics/Propagators/fssh.pyx":212
- *         info = 'No surface hopping is performed'
+ *         info = '  No surface hopping is performed'
  *     else:
  *         dHdt = (Ht - H) / substep             # <<<<<<<<<<<<<<
  *         dDdt = (Dt - D) / substep
