@@ -40,7 +40,8 @@ def GSH(traj):
     statemult    = traj.statemult
     maxhop       = traj.maxh
 
-    z = np.random.uniform(0, 1) # random number
+    # random number
+    z = np.random.uniform(0, 1)
 
     # initialize return values
     old_state = state
@@ -64,6 +65,9 @@ def GSH(traj):
         # array of hopping probability
         g = np.zeros(nstate)
 
+        # accumulated probability
+        gsum = 0
+
         target_spin = statemult[state - 1]
 
         for i in range(nstate):
@@ -81,7 +85,6 @@ def GSH(traj):
 
             g[i] += P
 
-        gsum = 0
         for j in range(nstate):
             gsum += g[stateindex[j]]
             nhop = np.abs(stateorder[j] - stateorder[state - 1])
@@ -100,6 +103,20 @@ def GSH(traj):
                 state = old_state
                 hoped = 2
 
+        summary = ''
+        for n in range(nstate):
+            summary += '    %-5s %-5s %-5s %12.8f\n' % (n + 1, statemult[n], stateorder[n] + 1, g[n])
+
+        info = """
+    Random number:           %12.8f
+    Accumulated probability: %12.8f
+    state mult  level   probability
+%s
+    """ % (z, gsum, summary)
+
+    else:
+        info = '  No surface hopping is performed'
+
     # allocate zeros vector for population state density
     At = np.zeros([nstate, nstate])
 
@@ -111,17 +128,6 @@ def GSH(traj):
 
     # Current non-adiabatic matrix
     Dt = np.zeros([nstate, nstate])
-
-    summary = ''
-    for n in range(nstate):
-        summary += '    %-5s %-5s %-5s %12.8f\n' % (n + 1, statemult[n], stateorder[n] + 1, g[n])
-
-        info = """
-    Random number:           %12.8f
-    Accumulated probability: %12.8f
-    state mult  level   probability
-%s
-    """ % (z, gsum, summary)
 
     if iter > 2 and verbose >= 2:
         print(info)

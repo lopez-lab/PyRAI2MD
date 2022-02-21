@@ -207,7 +207,7 @@ cpdef FSSH(dict traj):
     if iter < 4:
         At[state - 1, state - 1] = 1
         Vt = V
-        info = 'No surface hopping is performed'
+        info = '  No surface hopping is performed'
     else:
         dHdt = (Ht - H) / substep
         dDdt = (Dt - D) / substep
