@@ -69,7 +69,9 @@ class AdaptiveSampling:
             max_g            float       maximum gradient errors among all trajectories
             max_n            float       maximum non-adiabatic coupling errors among all trajectories
             max_s            float       maximum spin-orbit coupling errors among all trajectories
-            select_geom      list        list of selected geometries for QM calculations
+            initcond         list        list of trajectory class for initial condition
+            select_cond      list        list of trajectory class for selected geometries for QM calculation
+            select_geom      list        list of coordinates for selected geometries
             nselect          list        number of selected geometries per trajectory
             ndiscard         list        number of discarded geometries per trajectory
             nuncertain       list        number of uncertain geometries per trajectory
@@ -145,6 +147,7 @@ class AdaptiveSampling:
         self.ndiscard     = []
         self.nuncertain   = []
         self.nrefine      = []
+        self.select_cond  = []
 
         ## load training data
         train_data = keywords[self.qm]['train_data']
@@ -152,9 +155,10 @@ class AdaptiveSampling:
         self.data.load(train_data)
         self.data.stat()
 
-        ## generate initial conditions
+        ## generate initial conditions and trajectories
         np.random.seed(gl_seed)
-        self.initcond = Sampling(self.title, ninitcond, gl_seed, temp, method, format)
+        initcond = Sampling(self.title, ninitcond, gl_seed, temp, method, format)
+        self.initcond = [Trajectory(x, keywords = self.keywords) for x in initcond]
 
     def _run_aimd(self):
         ## wrap variables for multiprocessing
@@ -175,10 +179,7 @@ class AdaptiveSampling:
         return md_traj
 
     def _aimd_wrapper(self, variables):
-        traj_id, initcond = variables
-
-        ## create a trajectory class
-        traj = Trajectory(initcond, keywords = self.keywords)
+        traj_id, traj = variables
 
         ## multiprocessing doesn't support shared-memory
         ## load mode in each worker process here :(
@@ -197,7 +198,7 @@ class AdaptiveSampling:
 
     def _run_abinit(self):
         ## wrap variables for multiprocessing
-        variables_wrapper = [[n, np.concatenate((self.atoms, x), axis = 1)] for n, x in enumerate(self.select_geom)]
+        variables_wrapper = [[n, x] for n, x in enumerate(self.select_cond)]
         ngeom = len(variables_wrapper)
 
         ## adjust multiprocessing if necessary
@@ -224,7 +225,8 @@ class AdaptiveSampling:
         return newdata
 
     def _abinit_wrapper(self, variables):
-        geom_id, xyz = variables
+        geom_id, mol = variables
+        xyz = np.concatenate((self.atoms, mol.coord), axis = 1) 
 
         ## aling geometry to pre-stored training data to correct NAC phase
         ## it is not necessary if NAC is not request. The code below is obselete
@@ -232,9 +234,6 @@ class AdaptiveSampling:
         ## choose = np.random.choice(np.arange(len(geom_pool)),np.amin([50,len(geom_pool)]),replace=False)
         ## geom_pool = np.array(geom_pool)[choose]
         ## similar, rmsd_min = AlignGeom(xyz, geom_pool)
-
-        ## create a molecule class
-        mol = Trajectory(xyz, keywords = self.keywords)
 
         ## run QC calculation
         qc = QM(self.abinit, keywords = self.keywords, id = geom_id + 1)
@@ -272,9 +271,10 @@ class AdaptiveSampling:
         md_ndiscard = []
         md_uncertain = []
         md_refine = []
+        self.select_cond = []
 
         ## screen trajectories
-        for traj in md_traj:
+        for traj_id, traj in enumerate(md_traj):
             iter, state, atoms, geom, energy, grad, nac, soc, err_e, err_g, err_n, err_s, pop = np.array(traj).T
             last = iter[-1]
             final = state[-1]
@@ -352,11 +352,17 @@ class AdaptiveSampling:
             select_geom = np.array(geom)[index_tot]
  
             ## filter out the unphyiscal geometries based on atom distances
-            select_geom, discard_geom = self._distance_filter(select_geom) 
+            select_geom, discard_geom = self._distance_filter(allatoms, select_geom) 
 
             md_select_geom += [x.tolist() for x in select_geom]
             md_nselect.append(len(select_geom))
             md_ndiscard.append(len(discard_geom))
+
+            ## append selected conditions
+            for geo in select_geom:
+                select_cond = self.initcond[traj_id]
+                select_cond.coord = geo
+                self.select_cond.append(select_cond)
 
         ## update trajectories stat
         self.last = md_last
@@ -384,7 +390,7 @@ class AdaptiveSampling:
 
         return self
 
-    def _distance_filter(self, geom):
+    def _distance_filter(self, atom, geom):
         ## This function filter out unphysical geometries based on atom distances
         keep = []
         discard = []
@@ -394,14 +400,14 @@ class AdaptiveSampling:
                 unphysical = 0
                 for i in range(natom):
                     for j in range(i + 1, natom): 
-                        atom1 = geo[i][0]
+                        atom1 = atom[i][0]
                         coord1 = np.array(geo[i][0: 3])
-       	       	       	atom2 = geo[j][0]
+       	       	       	atom2 = atom[j][0]
                         coord2 = np.array(geo[j][0: 3])
                         distance = np.sum((coord1 - coord2)**2)**0.5
                         threshld = BondLib(atom1, atom2)
-                        if distance < threshld*0.7:
-                            #print(i+1, coord1, j+1, coord2, distance, threshld)
+                        if distance < threshld * 0.7:
+                            #print(i+1, atom1, coord1, j+1, atom2, coord2, distance, threshld, threshld * 0.7)
                             unphysical=1
                 if unphysical == 1:
                     discard.append(geo) 
