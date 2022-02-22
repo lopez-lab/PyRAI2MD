@@ -10,6 +10,7 @@
 import multiprocessing, os, json, shutil, time
 from multiprocessing import Pool
 import numpy as np
+import copy
 
 from PyRAI2MD.methods import QM
 from PyRAI2MD.Molecule.trajectory import Trajectory
@@ -360,7 +361,7 @@ class AdaptiveSampling:
 
             ## append selected conditions
             for geo in select_geom:
-                select_cond = self.initcond[traj_id]
+                select_cond = copy.deepcopy(self.initcond[traj_id])
                 select_cond.coord = geo
                 self.select_cond.append(select_cond)
 
