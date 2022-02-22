@@ -215,6 +215,8 @@ class Trajectory(Molecule):
         self.energy1  = np.copy(self.energy)
         self.grad2    = np.copy(self.grad1)
         self.grad1    = np.copy(self.grad)
+        self.last_soc = np.copy(self.soc)
+        self.last_nac = self._phase_correction(self.last_nac, self.nac)
 
         return self
 
@@ -223,8 +225,6 @@ class Trajectory(Molecule):
         self.last_A = np.copy(self.A)
         self.last_H = np.copy(self.H)
         self.last_D = np.copy(self.D)
-        self.last_soc = np.copy(self.soc)
-        self.last_nac = self._phase_correction(self.last_nac, self.nac)
         self.last_state = self.state
 
         return self
