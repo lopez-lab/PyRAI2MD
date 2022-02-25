@@ -271,7 +271,7 @@ class AdaptiveSampling:
         md_nselect = []
         md_ndiscard = []
         md_uncertain = []
-        md_refine = []
+        md_nrefine = []
         self.select_cond = []
 
         ## screen trajectories
@@ -310,26 +310,42 @@ class AdaptiveSampling:
             #selec_n,index_n = self._localmax(err_n,maxsample,neighbor)
 
             ## find index of geometries exceeding the threshold of prediction error
-            index_e = self._sort_errors(err_e, self.minenergy, self.maxsample)
+            index_e = self._sort_errors(err_e, self.minenergy)
             selec_e = err_e[index_e]
 
-            index_g = self._sort_errors(err_g, self.mingrad, self.maxsample)
+            index_g = self._sort_errors(err_g, self.mingrad)
             selec_g = err_g[index_g]
 
-            index_n = self._sort_errors(err_n, self.minnac, self.maxsample)
+            index_n = self._sort_errors(err_n, self.minnac)
             selec_n = err_n[index_n]
 
-            index_s = self._sort_errors(err_s, self.minsoc, self.maxsample)
+            index_s = self._sort_errors(err_s, self.minsoc)
             selec_s = err_s[index_s]
+
+            ## find index of geometries exceeding the max threshold of prediction error
+            uncer_e = self._sort_errors(err_e, self.maxenergy)
+            uncer_g = self._sort_errors(err_g, self.maxgrad)
+            uncer_n = self._sort_errors(err_n, self.maxnac)
+            uncer_s = self._sort_errors(err_s, self.maxsoc)
 
             ##  merge index and remove duplicate in select_geom
             index_tot = np.concatenate((index_e, index_g)).astype(int)
             index_tot = np.concatenate((index_tot, index_n)).astype(int)
             index_tot = np.concatenate((index_tot, index_s)).astype(int)
-            index_tot = np.unique(index_tot)
+            index_tot = np.unique(index_tot)[::-1] # reverse from large to small indices
+
+            uncer_tot = np.concatenate((uncer_e, uncer_g)).astype(int)
+            uncer_tot = np.concatenate((uncer_tot, uncer_n)).astype(int)
+            uncer_tot = np.concatenate((uncer_tot, uncer_s)).astype(int)
+            uncer_tot = np.unique(uncer_tot)
 
             ## record number of uncertain geometry before merging with refinement geometry
-            md_uncertain.append(len(index_tot))
+            md_uncertain.append(len(uncer_tot))
+
+            ## filter out the unphyiscal geometries based on atom distances
+            select_geom = np.array(geom)[index_tot]
+            select_geom, discard_geom = self._distance_filter(allatoms, select_geom)
+            select_geom = select_geom[0: self.maxsample]
 
             ## refine crossing region, optionally
             if self.refine == 1:
@@ -343,21 +359,23 @@ class AdaptiveSampling:
                         pos += 1
                         gap_e[:, pos] = np.abs(energy[:, i] - energy[:, j])
                 gap_e = np.amin(gap_e, axis=1)         # pick the smallest gap per point
-                index_r = np.argsort(gap_e[self.refine_start: self.refine_end])[0: self.refine_num]
-                index_tot = np.concatenate((index_tot, index_r)).astype(int)
-                index_tot = np.unique(index_tot)
+                index_r = np.argsort(gap_e[self.refine_start: self.refine_end])
+
+                refine_geom = np.array(geom)[index_r]
+                refine_geom, refine_discard = self._distance_filter(allatoms, refine_geom)
+                refine_geom = refine_geom[0: self.refine_num]
+
             else:
                 index_r = []
-            md_refine.append(len(index_r))
+                refine_geom = []
 
-            select_geom = np.array(geom)[index_tot]
- 
-            ## filter out the unphyiscal geometries based on atom distances
-            select_geom, discard_geom = self._distance_filter(allatoms, select_geom) 
-
+            ## combine select and refine geom
+            select_geom += refine_geom
+            
+            md_nrefine.append(len(index_r))
             md_select_geom += [x.tolist() for x in select_geom]
-            md_nselect.append(len(select_geom))
-            md_ndiscard.append(len(discard_geom))
+            md_nselect.append(len(select_geom) - len(refine_geom))
+            md_ndiscard.append(self.maxsample - len(select_geom) - len(refine_geom))
 
             ## append selected conditions
             for geo in select_geom:
@@ -387,7 +405,7 @@ class AdaptiveSampling:
         self.nselect = md_nselect
         self.ndiscard = md_ndiscard
         self.nuncertain = md_uncertain
-        self.nrefine = md_refine
+        self.nrefine = md_nrefine
 
         return self
 
@@ -417,12 +435,12 @@ class AdaptiveSampling:
 
         return keep, discard
 
-    def _sort_errors(self, err, threshold, nsample):
+    def _sort_errors(self, err, threshold):
         ## This function sort the errors from the largest to the smallest
         sort_i_err = np.argsort(-err)
         sort_err  = err[sort_i_err]
         find_err  = np.argwhere(sort_err > threshold)
-        index_err = sort_i_err[find_err.reshape(-1)][:nsample]
+        index_err = sort_i_err[find_err.reshape(-1)]
 
         return index_err
 
@@ -544,7 +562,7 @@ MaxStd(Energy: %8.4f Gradient: %8.4f NAC: %8.4f SOC: %8.4f) %s\n' % (
   Average length:             %-10s
   Ground state:               %-10s
   Completed:                  %-10s
-  Sampled:                    %-10s
+  Sampled trajectories:       %-10s
   Refinement:                 %-10s
   Discarded:                  %-10s
   Selected:                   %-10s
