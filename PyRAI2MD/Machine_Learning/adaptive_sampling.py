@@ -251,7 +251,7 @@ class AdaptiveSampling:
 
     def _screen_error(self, md_traj):
         ## initialize data list
-        ntraj        = len(md_traj)
+        ntraj          = len(md_traj)
         md_last        = [[] for x in range(ntraj)]
         md_final       = [[] for x in range(ntraj)]
         md_atoms       = [[] for x in range(ntraj)]
