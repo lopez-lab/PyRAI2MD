@@ -250,164 +250,182 @@ class AdaptiveSampling:
         return geom_id, xyz, energy, grad, nac, soc, completion
 
     def _screen_error(self, md_traj):
-        ## initialize info list
-        md_last = []
-        md_final = []
-        md_geom = []
-        md_energy = []
-        md_grad = []
-        md_nac = []
-        md_soc = []
-        md_err_e = []
-        md_err_g = []
-        md_err_n = []
-        md_err_s = []
-        md_pop = []
-        md_max_e = 0
-       	md_max_g = 0
-       	md_max_n = 0
-        md_max_s = 0
-        md_select_geom = []
-        md_nselect = []
-        md_ndiscard = []
-        md_uncertain = []
-        md_nrefine = []
-        self.select_cond = []
+        ## initialize data list
+        ntraj        = len(md_traj)
+        md_last        = [[] for x in range(ntraj)]
+        md_final       = [[] for x in range(ntraj)]
+        md_atoms       = [[] for x in range(ntraj)]
+        md_geom        = [[] for x in range(ntraj)]
+        md_energy      = [[] for x in range(ntraj)]
+        md_grad        = [[] for x in range(ntraj)]
+        md_nac         = [[] for x in range(ntraj)]
+        md_soc         = [[] for x in range(ntraj)]
+        md_err_e       = [[] for x in range(ntraj)]
+        md_err_g       = [[] for x in range(ntraj)]
+        md_err_n       = [[] for x in range(ntraj)]
+        md_err_s       = [[] for x in range(ntraj)]
+        md_pop         = [[] for x in range(ntraj)]
+        md_refine_geom = [[] for x in range(ntraj)]
+        md_select_geom = [[] for x in range(ntraj)]
+        md_nselect     = [[] for x in range(ntraj)]
+        md_ndiscard    = [[] for x in range(ntraj)]
+        md_uncertain   = [[] for x in range(ntraj)]
+        md_nrefine     = [[] for x in range(ntraj)]
+        md_select_cond = [[] for x in range(ntraj)]
 
-        ## screen trajectories
-        for traj_id, traj in enumerate(md_traj):
-            iter, state, atoms, geom, energy, grad, nac, soc, err_e, err_g, err_n, err_s, pop = np.array(traj).T
-            last = iter[-1]
-            final = state[-1]
-            allatoms = atoms[-1].tolist()
-            ## pack data into checkpoing dict
-            md_last.append(last)              # the trajectory length
-            md_final.append(final)              # the final state
-            md_geom.append(geom.tolist())     # all recorded geometries
-            md_energy.append(energy.tolist()) # all energies
-            md_grad.append(grad.tolist())     # all forces
-            md_nac.append(nac.tolist())       # all NACs
-            md_soc.append(soc.tolist())       # all SOCs
-            md_err_e.append(err_e.tolist())   # all prediction error in energies
-       	    md_err_g.append(err_g.tolist())   # all prediction error in forces
-       	    md_err_n.append(err_n.tolist())   # all prediction error in NACs
-            md_err_s.append(err_s.tolist())   # all prediction error in SOCs
-            md_pop.append(pop.tolist())       # all populations
+        ## screen trajectories with multiprocessing
+        variables_wrapper = [[n, x, self.initcond[n]] for n, x in enumerate(md_traj)]
+        ncpu = np.amin([ntraj, self.ml_ncpu])
+        pool = multiprocessing.Pool(processes = ncpu)
+        for val in pool.imap_unordered(self._screen_error_wrapper, variables_wrapper):
+            traj_id, traj_data, sampling_data  = val
+            md_last[traj_id]        = traj_data[0][-1]          # the trajectory length
+            md_final[traj_id]       = traj_data[1][-1]          # the final state
+            md_atoms[traj_id]       = traj_data[2][-1].tolist() # the atom list
+            md_geom[traj_id]        = traj_data[3].tolist()     # all recorded geometries
+            md_energy[traj_id]      = traj_data[4].tolist()     # all energies
+            md_grad[traj_id]        = traj_data[5].tolist()     # all forces
+            md_nac[traj_id]         = traj_data[6].tolist()     # all NACs
+            md_soc[traj_id]         = traj_data[7].tolist()     # all SOCs
+            md_err_e[traj_id]       = traj_data[8].tolist()     # all prediction error in energies
+            md_err_g[traj_id]       = traj_data[9].tolist()     # all prediction error in forces
+            md_err_n[traj_id]       = traj_data[10].tolist()    # all prediction error in NACs
+            md_err_s[traj_id]       = traj_data[11].tolist()    # all prediction error in SOCs
+            md_pop[traj_id]         = traj_data[12].tolist()    # all populations
+            md_select_geom[traj_id] = sampling_data[0]
+            md_nselect[traj_id]	    = sampling_data[1]
+            md_ndiscard[traj_id]    = sampling_data[2]
+            md_uncertain[traj_id]   = sampling_data[3]
+            md_nrefine[traj_id]     = sampling_data[4]
+            md_select_cond[traj_id] = sampling_data[5]
 
-            ## update the maximum errors
-            if np.amax(err_e) > md_max_e:
-                md_max_e = np.amax(err_e)     # max prediction error in energies
-            if np.amax(err_g) > md_max_g:
-                md_max_g = np.amax(err_g)     # max prediction error in forces
-            if np.amax(err_n) > md_max_n:
-      	       	md_max_n = np.amax(err_n)     # max prediction error in NACs
-            if np.amax(err_s) > md_max_s:
-                md_max_s = np.amax(err_s)     # max prediction error in SOCs
+        pool.close()
 
-            ## largest n std in e, g, and n
-            #selec_e,index_e = self._localmax(err_e,maxsample,neighbor)
-            #selec_g,index_g = self._localmax(err_g,maxsample,neighbor)
-            #selec_n,index_n = self._localmax(err_n,maxsample,neighbor)
-
-            ## find index of geometries exceeding the threshold of prediction error
-            index_e = self._sort_errors(err_e, self.minenergy)
-            selec_e = err_e[index_e]
-
-            index_g = self._sort_errors(err_g, self.mingrad)
-            selec_g = err_g[index_g]
-
-            index_n = self._sort_errors(err_n, self.minnac)
-            selec_n = err_n[index_n]
-
-            index_s = self._sort_errors(err_s, self.minsoc)
-            selec_s = err_s[index_s]
-
-            ## find index of geometries exceeding the max threshold of prediction error
-            uncer_e = self._sort_errors(err_e, self.maxenergy)
-            uncer_g = self._sort_errors(err_g, self.maxgrad)
-            uncer_n = self._sort_errors(err_n, self.maxnac)
-            uncer_s = self._sort_errors(err_s, self.maxsoc)
-
-            ##  merge index and remove duplicate in select_geom
-            index_tot = np.concatenate((index_e, index_g)).astype(int)
-            index_tot = np.concatenate((index_tot, index_n)).astype(int)
-            index_tot = np.concatenate((index_tot, index_s)).astype(int)
-            index_tot = np.unique(index_tot)[::-1] # reverse from large to small indices
-
-            uncer_tot = np.concatenate((uncer_e, uncer_g)).astype(int)
-            uncer_tot = np.concatenate((uncer_tot, uncer_n)).astype(int)
-            uncer_tot = np.concatenate((uncer_tot, uncer_s)).astype(int)
-            uncer_tot = np.unique(uncer_tot)
-
-            ## record number of uncertain geometry before merging with refinement geometry
-            md_uncertain.append(len(uncer_tot))
-
-            ## filter out the unphyiscal geometries based on atom distances
-            select_geom = np.array(geom)[index_tot]
-            select_geom, discard_geom = self._distance_filter(allatoms, select_geom)
-            select_geom = select_geom[0: self.maxsample]
-
-            ## refine crossing region, optionally
-            if self.refine == 1:
-                energy = np.array([np.array(x) for x in energy])
-                state = len(energy[0])
-                pair = int(state * (state - 1) / 2)
-                gap_e = np.zeros([len(energy), pair])  # initialize gap matrix
-                pos = -1
-                for i in range(state):                 # compute gap per pair of states
-                    for j in range(i + 1, state):
-                        pos += 1
-                        gap_e[:, pos] = np.abs(energy[:, i] - energy[:, j])
-                gap_e = np.amin(gap_e, axis=1)         # pick the smallest gap per point
-                index_r = np.argsort(gap_e[self.refine_start: self.refine_end])
-
-                refine_geom = np.array(geom)[index_r]
-                refine_geom, refine_discard = self._distance_filter(allatoms, refine_geom)
-                refine_geom = refine_geom[0: self.refine_num]
-
-            else:
-                index_r = []
-                refine_geom = []
-
-            ## combine select and refine geom
-            select_geom += refine_geom
-            
-            md_nrefine.append(len(index_r))
-            md_select_geom += [x.tolist() for x in select_geom]
-            md_nselect.append(len(select_geom) - len(refine_geom))
-            md_ndiscard.append(self.maxsample - len(select_geom) - len(refine_geom))
-
-            ## append selected conditions
-            for geo in select_geom:
-                select_cond = copy.deepcopy(self.initcond[traj_id])
-                select_cond.coord = geo
-                self.select_cond.append(select_cond)
+        md_max_e = np.amax(md_err_e)
+        md_max_g = np.amax(md_err_g)
+        md_max_n = np.amax(md_err_n)
+        md_max_s = np.amax(md_err_s)
 
         ## update trajectories stat
-        self.last = md_last
-        self.final = md_final
-        self.atoms = allatoms
-        self.geom = md_geom
-        self.energy = md_energy
-        self.grad = md_grad
-        self.nac = md_nac
-        self.soc = md_soc
-        self.err_e = md_err_e
-        self.err_g = md_err_g
-        self.err_n = md_err_n
-        self.err_s = md_err_s
-        self.pop = md_pop
-        self.max_e = md_max_e
-        self.max_g = md_max_g
-        self.max_n = md_max_n
-        self.max_s = md_max_s
-        self.select_geom = md_select_geom
-        self.nselect = md_nselect
-        self.ndiscard = md_ndiscard
+        self.last       = md_last
+        self.final      = md_final
+        self.atoms      = md_atoms[-1]
+        self.geom       = md_geom
+        self.energy     = md_energy
+        self.grad       = md_grad
+        self.nac        = md_nac
+        self.soc        = md_soc
+        self.err_e      = md_err_e
+        self.err_g      = md_err_g
+        self.err_n      = md_err_n
+        self.err_s      = md_err_s
+        self.pop        = md_pop
+        self.max_e      = md_max_e
+        self.max_g      = md_max_g
+        self.max_n      = md_max_n
+        self.max_s      = md_max_s
+        self.nselect    = md_nselect
+        self.ndiscard   = md_ndiscard
         self.nuncertain = md_uncertain
-        self.nrefine = md_nrefine
+        self.nrefine    = md_nrefine
+
+        ## append selected geom and conditions
+        self.select_geom = []
+        for geom in md_select_geom:
+            self.select_geom = self.select_geom + geom
+
+        self.select_cond = []
+        for cond in md_select_cond:
+            self.select_cond = self.select_cond + cond
 
         return self
+
+    def _screen_error_wrapper(self, variables):
+        ## This function screens errors from trajectories
+        traj_id, traj, initcond = variables
+        traj_data = np.array(traj).T
+        sampling_data = [[] for x in range(6)]
+
+        ## upack traj
+        iter, state, atoms, geom, energy, grad, nac, soc, err_e, err_g, err_n, err_s, pop = traj_data
+        allatoms = atoms[-1].tolist()
+
+        ## find index of geometries exceeding the threshold of prediction error
+        index_e = self._sort_errors(err_e, self.minenergy)
+        selec_e = err_e[index_e]
+
+        index_g = self._sort_errors(err_g, self.mingrad)
+        selec_g = err_g[index_g]
+
+        index_n = self._sort_errors(err_n, self.minnac)
+        selec_n = err_n[index_n]
+
+        index_s = self._sort_errors(err_s, self.minsoc)
+        selec_s = err_s[index_s]
+
+        ##  merge index and remove duplicate in select_geom
+        index_tot = np.concatenate((index_e, index_g)).astype(int)
+        index_tot = np.concatenate((index_tot, index_n)).astype(int)
+        index_tot = np.concatenate((index_tot, index_s)).astype(int)
+        index_tot = np.unique(index_tot)[::-1] # reverse from large to small indices
+
+        ## find index of geometries exceeding the max threshold of prediction error
+        uncer_e = self._sort_errors(err_e, self.maxenergy)
+        uncer_g = self._sort_errors(err_g, self.maxgrad)
+        uncer_n = self._sort_errors(err_n, self.maxnac)
+        uncer_s = self._sort_errors(err_s, self.maxsoc)
+
+        ##  merge index and remove duplicate in uncertain trajectories
+        uncer_tot = np.concatenate((uncer_e, uncer_g)).astype(int)
+        uncer_tot = np.concatenate((uncer_tot, uncer_n)).astype(int)
+        uncer_tot = np.concatenate((uncer_tot, uncer_s)).astype(int)
+        uncer_tot = np.unique(uncer_tot)
+
+        ## filter out the unphyiscal geometries based on atom distances
+        select_geom = np.array(geom)[index_tot]
+        select_geom, discard_geom = self._distance_filter(allatoms, select_geom)
+        select_geom = select_geom[0: self.maxsample]
+
+        ## refine crossing region, optionally
+        if self.refine == 1:
+            energy = np.array([np.array(x) for x in energy])
+            state = len(energy[0])
+            pair = int(state * (state - 1) / 2)
+            gap_e = np.zeros([len(energy), pair])  # initialize gap matrix
+            pos = -1
+            for i in range(state):                 # compute gap per pair of states
+                for j in range(i + 1, state):
+                    pos += 1
+                    gap_e[:, pos] = np.abs(energy[:, i] - energy[:, j])
+            gap_e = np.amin(gap_e, axis=1)         # pick the smallest gap per point
+            index_r = np.argsort(gap_e[self.refine_start: self.refine_end])
+
+            refine_geom = np.array(geom)[index_r]
+            refine_geom, refine_discard = self._distance_filter(allatoms, refine_geom)
+            refine_geom = refine_geom[0: self.refine_num]
+
+        else:
+            index_r = []
+            refine_geom = []
+
+        ## combine select and refine geom
+        select_geom = select_geom + refine_geom
+
+        ## append selected conditions
+        select_cond = []
+        for geo in select_geom:
+            cond = copy.deepcopy(initcond)
+            cond.coord = geo
+            select_cond.append(cond)
+
+        sampling_data[0] = [x.tolist() for x in select_geom]                    # to md_select_geom
+        sampling_data[1] = len(select_geom) - len(refine_geom)                  # to md_nselect
+        sampling_data[2] = self.maxsample - len(select_geom) - len(refine_geom) # to md_ndiscard
+        sampling_data[3] = len(uncer_tot)                                       # to md_uncertain
+        sampling_data[4] = len(refine_geom)                                     # to md_nrefine
+        sampling_data[5] = select_cond                                          # to md_select_cond
+
+        return traj_id, traj_data, sampling_data
 
     def _distance_filter(self, atom, geom):
         ## This function filter out unphysical geometries based on atom distances
