@@ -254,6 +254,10 @@ class AdaptiveSampling:
 
     def _screen_error(self, md_traj):
         ## initialize data list
+
+        print('\nScreen geometries')
+        t_s = time.time()
+
         ntraj          = len(md_traj)
         md_last        = [[] for x in range(ntraj)]
         md_final       = [[] for x in range(ntraj)]
@@ -305,9 +309,9 @@ class AdaptiveSampling:
             md_uncertain[traj_id]   = sampling_data[3]          # number of uncertain traj
             md_nrefine[traj_id]     = sampling_data[4]          # number of refine geometries in each traj
 
-            n += 1
-            print(n, time.time())
-        pool.close()
+        t_m = time.time
+        print('Select geometries spent: ', HowLong(t_s, t_m))
+        #pool.close()
 
         ## find the max of data in different length
         md_max_e = np.amax([np.amax(x) for x in md_err_e])
@@ -349,6 +353,9 @@ class AdaptiveSampling:
                 cond = copy.deepcopy(self.initcond[n])
                 cond.coord = geo
                 self.select_cond.append(cond)
+
+        t_e = time.time()
+        print('Prepare calculation spent: ', HowLong(t_m, t_e))
 
         return self
 
