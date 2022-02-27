@@ -351,7 +351,7 @@ class AdaptiveSampling:
 
             for geo in geom:
                 cond = copy.deepcopy(self.initcond[n])
-                cond.coord = geo
+                cond.coord = np.array(geo)
                 self.select_cond.append(cond)
 
         t_e = time.time()
