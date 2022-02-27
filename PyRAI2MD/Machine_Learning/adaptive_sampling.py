@@ -309,7 +309,7 @@ class AdaptiveSampling:
             md_uncertain[traj_id]   = sampling_data[3]          # number of uncertain traj
             md_nrefine[traj_id]     = sampling_data[4]          # number of refine geometries in each traj
 
-        t_m = time.time
+        t_m = time.time()
         print('Select geometries spent: ', HowLong(t_s, t_m))
         #pool.close()
 
