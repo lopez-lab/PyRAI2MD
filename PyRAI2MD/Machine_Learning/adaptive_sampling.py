@@ -161,6 +161,9 @@ class AdaptiveSampling:
         initcond = Sampling(self.title, ninitcond, gl_seed, temp, method, format)
         self.initcond = [Trajectory(x, keywords = self.keywords) for x in initcond]
 
+        ## set multiprocessing
+        multiprocessing.set_start_method('spawn')
+
     def _run_aimd(self):
         ## wrap variables for multiprocessing
         variables_wrapper = [[n, x] for n, x in enumerate(self.initcond)]
@@ -274,10 +277,14 @@ class AdaptiveSampling:
         md_select_cond = [[] for x in range(ntraj)]
 
         ## screen trajectories with multiprocessing
-        variables_wrapper = [[n, x, self.initcond[n]] for n, x in enumerate(md_traj)]
-        ncpu = np.amin([ntraj, self.ml_ncpu])
-        pool = multiprocessing.Pool(processes = ncpu)
-        for val in pool.imap_unordered(self._screen_error_wrapper, variables_wrapper):
+        variables_wrapper = [[n, x] for n, x in enumerate(md_traj)]
+       	n = 0
+        #ncpu = np.amin([ntraj, self.ml_ncpu])
+        #pool = multiprocessing.Pool(processes = ncpu)
+        #n = 0
+        #for val in pool.imap_unordered(self._screen_error_wrapper, variables_wrapper):
+        for var in variables_wrapper:
+            val = self._screen_error_wrapper(var)
             traj_id, traj_data, sampling_data  = val
             md_last[traj_id]        = traj_data[0][-1]          # the trajectory length
             md_final[traj_id]       = traj_data[1][-1]          # the final state
@@ -292,19 +299,21 @@ class AdaptiveSampling:
             md_err_n[traj_id]       = traj_data[10].tolist()    # all prediction error in NACs
             md_err_s[traj_id]       = traj_data[11].tolist()    # all prediction error in SOCs
             md_pop[traj_id]         = traj_data[12].tolist()    # all populations
-            md_select_geom[traj_id] = sampling_data[0]
-            md_nselect[traj_id]	    = sampling_data[1]
-            md_ndiscard[traj_id]    = sampling_data[2]
-            md_uncertain[traj_id]   = sampling_data[3]
-            md_nrefine[traj_id]     = sampling_data[4]
-            md_select_cond[traj_id] = sampling_data[5]
+            md_select_geom[traj_id] = sampling_data[0]          # selected geometries in each traj for qm calculations
+            md_nselect[traj_id]	    = sampling_data[1]          # number of selected geometries in each traj
+            md_ndiscard[traj_id]    = sampling_data[2]          # number of discarded geometries in each traj
+            md_uncertain[traj_id]   = sampling_data[3]          # number of uncertain traj
+            md_nrefine[traj_id]     = sampling_data[4]          # number of refine geometries in each traj
 
+            n += 1
+            print(n, time.time())
         pool.close()
 
-        md_max_e = np.amax(md_err_e)
-        md_max_g = np.amax(md_err_g)
-        md_max_n = np.amax(md_err_n)
-        md_max_s = np.amax(md_err_s)
+        ## find the max of data in different length
+        md_max_e = np.amax([np.amax(x) for x in md_err_e])
+        md_max_g = np.amax([np.amax(x) for x in md_err_g])
+        md_max_n = np.amax([np.amax(x) for x in md_err_n])
+        md_max_s = np.amax([np.amax(x) for x in md_err_s])
 
         ## update trajectories stat
         self.last       = md_last
@@ -331,20 +340,23 @@ class AdaptiveSampling:
 
         ## append selected geom and conditions
         self.select_geom = []
-        for geom in md_select_geom:
+        self.select_cond = []
+
+        for n, geom in enumerate(md_select_geom):
             self.select_geom = self.select_geom + geom
 
-        self.select_cond = []
-        for cond in md_select_cond:
-            self.select_cond = self.select_cond + cond
+            for geo in geom:
+                cond = copy.deepcopy(self.initcond[n])
+                cond.coord = geo
+                self.select_cond.append(cond)
 
         return self
 
     def _screen_error_wrapper(self, variables):
         ## This function screens errors from trajectories
-        traj_id, traj, initcond = variables
+        traj_id, traj = variables
         traj_data = np.array(traj).T
-        sampling_data = [[] for x in range(6)]
+        sampling_data = [[] for x in range(5)]
 
         ## upack traj
         iter, state, atoms, geom, energy, grad, nac, soc, err_e, err_g, err_n, err_s, pop = traj_data
@@ -411,19 +423,11 @@ class AdaptiveSampling:
         ## combine select and refine geom
         select_geom = select_geom + refine_geom
 
-        ## append selected conditions
-        select_cond = []
-        for geo in select_geom:
-            cond = copy.deepcopy(initcond)
-            cond.coord = geo
-            select_cond.append(cond)
-
         sampling_data[0] = [x.tolist() for x in select_geom]                    # to md_select_geom
         sampling_data[1] = len(select_geom) - len(refine_geom)                  # to md_nselect
         sampling_data[2] = self.maxsample - len(select_geom) - len(refine_geom) # to md_ndiscard
         sampling_data[3] = len(uncer_tot)                                       # to md_uncertain
         sampling_data[4] = len(refine_geom)                                     # to md_nrefine
-        sampling_data[5] = select_cond                                          # to md_select_cond
 
         return traj_id, traj_data, sampling_data
 
