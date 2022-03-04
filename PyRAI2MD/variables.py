@@ -27,14 +27,32 @@ def ReadControl(keywords, values):
         'refine_end'            : ReadVal('i'),
         'maxiter'               : ReadVal('i'),
         'maxsample'             : ReadVal('i'),
+        'dynsample'             : ReadVal('i'),
+        'maxdiscard'            : ReadVal('i'),
         'maxenergy'             : ReadVal('f'),
         'minenergy'             : ReadVal('f'),
+        'dynenergy'             : ReadVal('f'),
+        'inienergy'             : ReadVal('f'),
+        'fwdenergy'             : ReadVal('i'),
+        'bckenergy'             : ReadVal('i'),
         'maxgrad'               : ReadVal('f'),
         'mingrad'               : ReadVal('f'),
+        'dyngrad'               : ReadVal('f'),
+        'inigrad'               : ReadVal('f'),
+        'fwdgrad'               : ReadVal('i'),
+        'bckgrad'               : ReadVal('i'),
         'maxnac'                : ReadVal('f'),
         'minnac'                : ReadVal('f'),
+        'dynnac'                : ReadVal('f'),
+        'ininac'                : ReadVal('f'),
+        'fwdnac'                : ReadVal('i'),
+        'bcknac'                : ReadVal('i'),
         'maxsoc'                : ReadVal('f'),
         'minsoc'                : ReadVal('f'),
+        'dynsoc'                : ReadVal('f'),
+        'inisoc'                : ReadVal('f'),
+        'fwdsoc'                : ReadVal('i'),
+        'bcksoc'                : ReadVal('i'),
         'load'                  : ReadVal('i'),
         'transfer'              : ReadVal('i'),
         'pop_step'              : ReadVal('i'),
@@ -351,14 +369,32 @@ def ReadInput(input):
         'refine_end'            : 200,
         'maxiter'               : 1,
         'maxsample'             : 1,
+        'dynsample'             : 0,
+        'maxdiscard'            : 0,
         'maxenergy'             : 0.05,
         'minenergy'             : 0.02,
-        'maxgrad'               : 0.05,
-        'mingrad'               : 0.02,
-        'maxnac'                : 0.05,
-        'minnac'                : 0.02,
-        'maxsoc'                : 0.5,
-        'minsoc'                : 0.2,
+        'dynenergy'             : 0.1,
+        'inienergy'             : 0.3,
+        'fwdenergy'             : 1,
+        'bckenergy'    	       	: 1,
+        'maxgrad'               : 0.15,
+        'mingrad'               : 0.06,
+        'dyngrad'               : 0.1,
+        'inigrad'               : 0.3,
+        'fwdgrad'               : 1,
+        'bckgrad'               : 1,
+        'maxnac'                : 0.15,
+        'minnac'                : 0.06,
+        'dynnac'                : 0.1,
+        'ininac'                : 0.3,
+        'fwdnac'                : 1,
+        'bcknac'                : 1,
+        'maxsoc'                : 50,
+        'minsoc'                : 20,
+        'dynsoc'                : 0.1,
+        'inisoc'                : 0.3,
+        'fwdsoc'                : 1,
+        'bcksoc'                : 1,
         'load'                  : 1,
         'transfer'              : 0,
         'pop_step'              : 200,
@@ -810,12 +846,34 @@ def StartInfo(variables_all):
   Transfer learning:          %-10s
   Maxiter:                    %-10s
   Sampling number per traj:   %-10s
+  Use dynamical Std:          %-10s
+  Max discard range           %-10s
   Refine crossing:            %-10s
   Refine points/range: 	      %-10s %-10s %-10s
-  MinStd energy:              %-10s
-  MinStd gradient:            %-10s
-  MinStd nac:                 %-10s
-  MinStd soc:                 %-10s
+  MaxStd  energy:             %-10s
+  MinStd  energy:             %-10s
+  InitStd energy:             %-10s
+  Dynfctr energy:             %-10s
+  Forward delay energy:       %-10s
+  Backward delay energy:      %-10s
+  MaxStd  gradient:           %-10s
+  MinStd  gradient:           %-10s
+  InitStd gradient:           %-10s
+  Dynfctr gradient:           %-10s
+  Forward delay	gradient:     %-10s
+  Backward delay gradient:    %-10s
+  MaxStd  nac:                %-10s
+  MinStd  nac:                %-10s
+  InitStd nac:                %-10s
+  Dynfctr nac:                %-10s
+  Forward delay	nac:          %-10s
+  Backward delay nac:         %-10s
+  MaxStd  soc:                %-10s
+  MinStd  soc:                %-10s
+  InitStd soc:                %-10s
+  Dynfctr soc:                %-10s
+  Forward delay	soc:   	      %-10s
+  Backward delay soc:  	      %-10s
 -------------------------------------------------------
 
 """ % ( variables_control['abinit'],
@@ -823,14 +881,36 @@ def StartInfo(variables_all):
         variables_control['transfer'],
         variables_control['maxiter'],
         variables_control['maxsample'],
+        variables_control['dynsample'],
+        variables_control['maxdiscard'],
         variables_control['refine'],
         variables_control['refine_num'],
         variables_control['refine_start'],
         variables_control['refine_end'],
+        variables_control['maxenergy'],
         variables_control['minenergy'],
+        variables_control['inienergy'],
+        variables_control['dynenergy'],
+        variables_control['fwdenergy'],
+        variables_control['bckenergy'],
+        variables_control['maxgrad'],
         variables_control['mingrad'],
+        variables_control['inigrad'],
+        variables_control['dyngrad'],
+        variables_control['fwdgrad'],
+        variables_control['bckgrad'],
+        variables_control['maxnac'],
         variables_control['minnac'],
-        variables_control['minsoc'])
+        variables_control['ininac'],
+        variables_control['dynnac'],
+        variables_control['fwdnac'],
+        variables_control['bcknac'],
+        variables_control['maxsoc'],
+        variables_control['minsoc'],
+        variables_control['inisoc'],
+        variables_control['dynsoc'],
+        variables_control['fwdsoc'],
+        variables_control['bcksoc'])
 
     md_info = """
   &initial condition

@@ -10,14 +10,14 @@
 test_first_run         = 0
 test_bagel             = 0
 test_molcas            = 0
-test_molcas_tinker     = 1
+test_molcas_tinker     = 0
 test_fssh              = 0
 testh_gsh              = 0
 test_nn                = 0
 test_grid_search       = 0
 test_aimd              = 0
 test_mixaimd           = 0
-test_adaptive_sampling = 0
+test_adaptive_sampling = 1
 
 import time, datetime, os
 
