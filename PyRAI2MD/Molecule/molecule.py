@@ -156,7 +156,6 @@ class Molecule:
             self.txyz      = mol_info['txyz']
         else:
             sys.exit('\n  FileTypeError\n  PyRAI2MD: cannot recognize coordinate file %s' % (mol))
-
         if xyztype == 'xyz' and self.qmmm_xyz != 'Input':
             mol_info = ReadTinkerKey(self.qmmm_xyz, self.qmmm_key, dtype = 'file')
             self.inact     = mol_info['inact']
