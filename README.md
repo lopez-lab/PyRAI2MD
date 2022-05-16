@@ -122,11 +122,16 @@ Download the repository
 Specify environment variable of PyRAI2MD
 
     export PYRAI2MD=/path/to/PyRAI2MD
-    
+
+Compile fssh library
+
+    cd $PYRAI2MD/Tools
+    bash compile_cython_fssh.sh
+
 ## Test PyRAI2MD
 Copy the test script and modify environment variables 
 
-    cp $PYRAI2MD/Tool/test_PyRAI2MD.sh .
+    cp $PYRAI2MD/Tools/test_PyRAI2MD.sh .
     bash test_PyRAI2MD.sh
 
 Or directly run if environment variables are set
