@@ -178,6 +178,10 @@ class Trajectory(Molecule):
         else:
             self.delt = self.size / self.substep
 
+        ## adjust nnac to skip reading nac results
+        if self.nactype == 'ktdc':
+            self.nnac = 0
+
     def record(self):
         ## do not record trajectory history
         if self.length == 0:
