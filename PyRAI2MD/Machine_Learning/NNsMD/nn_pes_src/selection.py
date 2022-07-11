@@ -2,7 +2,7 @@
 Model selection
 """
 import os
-
+import copy
 import numpy as np
 
 from NNsMD.models.mlp_e import EnergyModel
@@ -31,11 +31,11 @@ def get_default_hyperparameters_by_modeltype(model_type):
         dict: Default hyper parameters for model.
 
     """
-    model_dict = {'mlp_eg': DEFAULT_HYPER_PARAM_ENERGY_GRADS,
-                  'mlp_e': DEFAULT_HYPER_PARAM_ENERGY,
-                  'mlp_g2': DEFAULT_HYPER_PARAM_GRADS2,
-                  'mlp_nac': DEFAULT_HYPER_PARAM_NAC,
-                  'mlp_nac2': DEFAULT_HYPER_PARAM_NAC}
+    model_dict = {'mlp_eg': copy.deepcopy(DEFAULT_HYPER_PARAM_ENERGY_GRADS),
+                  'mlp_e': copy.deepcopy(DEFAULT_HYPER_PARAM_ENERGY),
+                  'mlp_g2': copy.deepcopy(DEFAULT_HYPER_PARAM_GRADS2),
+                  'mlp_nac': copy.deepcopy(DEFAULT_HYPER_PARAM_NAC),
+                  'mlp_nac2': copy.deepcopy(DEFAULT_HYPER_PARAM_NAC)}
     return model_dict[model_type]
 
 
