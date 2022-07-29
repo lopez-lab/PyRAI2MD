@@ -427,10 +427,10 @@ class AdaptiveSampling:
         pool.close()
 
         ## find the max of data in different length
-        md_max_e = np.amax([np.amax(x) for x in md_selec_e])
-        md_max_g = np.amax([np.amax(x) for x in md_selec_g])
-        md_max_n = np.amax([np.amax(x) for x in md_selec_n])
-        md_max_s = np.amax([np.amax(x) for x in md_selec_s])
+        md_max_e = np.amax([np.amax(x) for x in md_err_e])
+        md_max_g = np.amax([np.amax(x) for x in md_err_g])
+        md_max_n = np.amax([np.amax(x) for x in md_err_n])
+        md_max_s = np.amax([np.amax(x) for x in md_err_s])
 
         ## update trajectories stat
         self.last       = md_last
