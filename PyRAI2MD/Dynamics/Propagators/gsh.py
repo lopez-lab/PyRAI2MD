@@ -102,6 +102,8 @@ def GSH(traj):
             if frustrated == 1:
                 state = old_state
                 hoped = 2
+            else:
+                hoped = 1
 
         summary = ''
         for n in range(nstate):
