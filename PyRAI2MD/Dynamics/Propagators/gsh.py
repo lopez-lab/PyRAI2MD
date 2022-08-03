@@ -90,9 +90,9 @@ def GSH(traj):
         event = 0
         for j in range(nstate):
             gsum += g[stateindex[j]]
-            nhop = np.abs(stateorder[j] - stateorder[state - 1])
+            nhop = np.abs(stateindex[j] - state + 1)
             if gsum > z and 0 < nhop <= maxhop:
-                new_state = j + 1
+                new_state = stateindex[j] + 1
                 event = 1
                 break
 
