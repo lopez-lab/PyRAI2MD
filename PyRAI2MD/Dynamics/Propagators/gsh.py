@@ -39,6 +39,8 @@ def GSH(traj):
     E            = traj.energy
     statemult    = traj.statemult
     maxhop       = traj.maxh
+    adjust       = traj.adjust
+    reflect      = traj.reflect
 
     # random number
     z = np.random.uniform(0, 1)
@@ -85,6 +87,7 @@ def GSH(traj):
 
             g[i] += P
 
+        event = 0
         for j in range(nstate):
             gsum += g[stateindex[j]]
             nhop = np.abs(stateorder[j] - stateorder[state - 1])
@@ -93,16 +96,17 @@ def GSH(traj):
                 event = 1
                 break
 
-        # if current state = old state, we know no surface hop has occurred
-        if state != old_state:
+        # if surface hopping event has occured
+        if event == 1:
             # Velocity must be adjusted because hop has occurred
-            Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust = adjust, reflect = reflect)
+            Vt, frustrated = AdjustVelo(E[old_state - 1], E[state - 1], V, M, N[state - 1], adjust, reflect)
 
             # if hop is frustrated, revert the current state to old state
             if frustrated == 1:
                 state = old_state
                 hoped = 2
             else:
+                state = new_state
                 hoped = 1
 
         summary = ''
