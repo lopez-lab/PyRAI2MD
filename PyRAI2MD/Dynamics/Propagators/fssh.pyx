@@ -107,7 +107,7 @@ cpdef GetNAC(int state, int new_state, list nac_coupling, np.ndarray nac, int na
     cdef np.ndarray nacv
 
     nac_pair = sorted([state - 1, new_state - 1])
-    if nac_pair in nac_coupling:
+    if nac_pair in nac_coupling and len(nacv) > 0:
         nac_pos = nac_coupling.index(nac_pair)
         nacv = nac[nac_pos]      # pick up pre-stored non-adiabatic coupling vectors between state and new_state
     else:
