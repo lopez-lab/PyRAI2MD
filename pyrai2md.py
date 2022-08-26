@@ -35,6 +35,7 @@ from PyRAI2MD.Machine_Learning.training_data import Data
 from PyRAI2MD.Machine_Learning.grid_search import GridSearch
 from PyRAI2MD.Machine_Learning.adaptive_sampling import AdaptiveSampling
 from PyRAI2MD.Utils.coordinates import PrintCoord
+from PyRAI2MD.Utils.coordinates import ReadInitcond
 from PyRAI2MD.Utils.sampling import Sampling
 from PyRAI2MD.Utils.timing import WhatIsTime, HowLong
 from PyRAI2MD.Utils.logo import Logo
@@ -216,10 +217,10 @@ class PYRAI2MD:
                 '%s sampled geom %s at %s K' % (method, ninitcond, temp),
                 PrintCoord(xyz))
 
-            with open('%s.xyz' % (title), 'w') as initxyz:
+            with open('%s.xyz' % (self.title), 'w') as initxyz:
                 initxyz.write(initxyz_info)
 
-            with open('%s.velo' % (title), 'w') as initvelo:
+            with open('%s.velo' % (self.title), 'w') as initvelo:
                 np.savetxt(initvelo, velo, fmt='%30s%30s%30s')
 
         ## create a trajectory and method model
